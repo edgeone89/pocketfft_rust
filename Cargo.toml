@@ -1,0 +1,14 @@
+[package]
+name = "pocketfft_rust"
+version = "0.1.0"
+authors = ["edgeone <edgeone@ya.ru>"]
+edition = "2018"
+
+
+[lib]
+name = "pocketfft_rust"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+libc = "0.2"
+
