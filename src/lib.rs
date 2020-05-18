@@ -1,6 +1,6 @@
 /*
  * This file is Rust rewrite of pocketfft.c from https://gitlab.mpcdf.mpg.de/mtr/pocketfft
- * Licensed under a 3-clause BSD style license - see LICENSE.md
+ * Licensed under a 3-clause BSD style license - see LICENSE
  */
 
 use core::ffi::c_void;
@@ -364,8 +364,8 @@ struct cfftp_fctdata {
 struct cfftp_plan_i {
     length: usize,
     nfct: usize,
-    mem: *mut f64,
-    fct: [cfftp_fctdata; NFCT],
+    mem: Vec<f64>,
+    fct: Vec<cfftp_fctdata>,
 }
 
 pub type cfftp_plan = *mut cfftp_plan_i;
@@ -2898,64 +2898,79 @@ fn cfftp_twsize(plan: *mut cfftp_plan_i) -> usize {
     return twsize;
 }
 
-fn cfftp_comp_twiddle(plan: *mut cfftp_plan_i) -> i32 {
+fn cfftp_comp_twiddle(plan: &mut cfftp_plan_i) -> i32 {
     let length: usize = unsafe { (*plan).length };
     let mut twid: Vec<f64> = Vec::with_capacity(2 * length);
     //if (!twid) {return -1;}
     sincos_2pibyn(length, twid.as_mut_slice());
     let mut l1: usize = 1;
     let mut memofs: usize = 0;
-    unsafe {
-        for k in 0..(*plan).nfct {
-            let ip = (*plan).fct[k].fct;
-            let ido = length / (l1 * ip);
-            //todo: plan.fct[k].tw = plan.mem + memofs;
-            memofs += (ip - 1) * (ido - 1);
-            for j in 1..ip {
-                for i in 1..ido {
-                    (*plan).fct[k].tw[(j - 1) * (ido - 1) + i - 1] = twid[2 * j * l1 * i];
-                    (*plan).fct[k].tw[(j - 1) * (ido - 1) + i - 1 + 1] = twid[2 * j * l1 * i + 1];
-                }
+
+    for k in 0..plan.nfct {
+        let ip = plan.fct[k].fct;
+        let ido = length / (l1 * ip);
+        //todo: plan.fct[k].tw = plan.mem + memofs;
+        memofs += (ip - 1) * (ido - 1);
+        for j in 1..ip {
+            for i in 1..ido {
+                plan.fct[k].tw[(j - 1) * (ido - 1) + i - 1] = twid[2 * j * l1 * i];
+                plan.fct[k].tw[(j - 1) * (ido - 1) + i - 1 + 1] = twid[2 * j * l1 * i + 1];
             }
-            if ip > 11 {
-                //todo: plan.fct[k].tws=plan.mem + memofs;
-                memofs += ip;
-                for j in 0..ip {
-                    (*plan).fct[k].tws[j] = twid[2 * j * l1 * ido];
-                    (*plan).fct[k].tws[j + 1] = twid[2 * j * l1 * ido + 1];
-                }
-            }
-            l1 *= ip;
         }
+        if ip > 11 {
+            //todo: plan.fct[k].tws=plan.mem + memofs;
+            memofs += ip;
+            for j in 0..ip {
+                plan.fct[k].tws[j] = twid[2 * j * l1 * ido];
+                plan.fct[k].tws[j + 1] = twid[2 * j * l1 * ido + 1];
+            }
+        }
+        l1 *= ip;
     }
     return 0;
 }
 
-unsafe fn make_cfftp_plan(length: usize) -> cfftp_plan {
-    //if (length==0) return ((void *)0);
-    let mut plan: cfftp_plan = malloc(size_of::<cfftp_plan>()) as cfftp_plan;
+fn make_cfftp_plan(len: usize) -> cfftp_plan {
+    //if (len==0) return ((void *)0);
+    //let plan: cfftp_plan = malloc(size_of::<cfftp_plan_i>()) as cfftp_plan;
     //if (!plan) return ((void *)0);
-    (*plan).length = length;
-    (*plan).nfct = 0;
+
+    let mut tmp_fct: Vec<cfftp_fctdata> = Vec::new();
     for i in 0..NFCT {
-        (*plan).fct[i] = cfftp_fctdata {
+        tmp_fct.insert(i, cfftp_fctdata {
             fct: 0,
             tw: Vec::new(),
             tws: Vec::new(),
-        }; //(cfftp_fctdata){0,0,0};
-    }
+        });
+    } //(cfftp_fctdata){0,0,0};
     //plan.mem=0;
-    //if (length==1) return plan;
-    /*if cfftp_factorize(plan) != 0 {
-      do { free(plan); (plan)=((void *)0); } while(0); return ((void *)0);
-    }*/
-    let tws = cfftp_twsize(plan);
-    (*plan).mem = (malloc((tws) * size_of::<f64>())) as *mut f64;
+    let tmp_cfftp_plan_i = cfftp_plan_i {
+        length: len,
+        nfct: 0,
+        mem: Vec::new(),
+        fct: tmp_fct,
+    };
+    let plan: cfftp_plan = Box::into_raw(Box::new(tmp_cfftp_plan_i));
+    if len == 1 {
+        return plan;
+    }
+    unsafe {
+        if cfftp_factorize(&mut *plan) != 0 {
+            Box::from_raw(plan);
+            return null_mut();
+        }
+    }
+    //let tws = cfftp_twsize(plan);
+    //(*plan).mem = (malloc((tws) * size_of::<f64>())) as *mut f64;
     //if (!plan.mem) { do { free(plan); (plan)= ((void *)0); } while(0); return ((void *)0); }
-    if cfftp_comp_twiddle(plan) != 0 {
-        free((*plan).mem as *mut c_void);
+    unsafe {
+        if cfftp_comp_twiddle(&mut *plan) != 0 {
+            //free((*plan).mem as *mut c_void);
 
-        free(plan as *mut c_void);
+            Box::from_raw(plan);
+
+            return null_mut();
+        }
     }
     return plan;
 }
@@ -2971,12 +2986,17 @@ struct fftblue_plan_i {
 
 type fftblue_plan = *mut fftblue_plan_i;
 
-unsafe fn make_fftblue_plan(length: usize) -> fftblue_plan {
-    let mut plan: fftblue_plan = malloc((1) * size_of::<fftblue_plan_i>()) as fftblue_plan;
+fn make_fftblue_plan(length: usize) -> fftblue_plan {
+    //let mut plan: fftblue_plan = malloc((1) * size_of::<fftblue_plan_i>()) as fftblue_plan;
+    let tmp_n2 = good_size(length * 2 - 1);
+    let tmp_mem: Vec<f64> = Vec::with_capacity(2*length+2*tmp_n2);
+    let mut tmp_bk: Vec<f64> = Vec::with_capacity(2*length+2*tmp_n2);
+    let mut tmp_bkf: Vec<f64> = Vec::with_capacity(2*length);
     //if (!plan) return ((void *)0) ;
-    (*plan).n = length;
-    (*plan).n2 = good_size((*plan).n * 2 - 1);
+    //(*plan).n = length;
+    //(*plan).n2 = good_size((*plan).n * 2 - 1);
     //fixme: (*plan).mem = malloc((2*(*plan).n+2*(*plan).n2)*size_of::<f64>()) as *mut f64;
+    //(*plan).mem = Vec::new();
 
     /*if (!plan->mem) {
       do {
@@ -2985,11 +3005,10 @@ unsafe fn make_fftblue_plan(length: usize) -> fftblue_plan {
          } while(0);
           return ((void *)0);
     }*/
-    //fixme:
-    (*plan).bk = (*plan).mem.to_vec();
+    //fixme: (*plan).bk = (*plan).mem.to_vec();
     //fixme: (*plan).bkf = (*plan).bk + 2 * (*plan).n;
     //fixme: let mut tmp: *mut f64 = (malloc((4 * (*plan).n) * size_of::<f64>())) as *mut f64;
-    let mut tmp: Vec<f64> = Vec::with_capacity(4 * (*plan).n);
+    let mut tmp: Vec<f64> = Vec::with_capacity(4 * length);
 
     /*if (!tmp) { do { free(plan->mem); (plan->mem)=
     ((void *)0)
@@ -2998,57 +3017,40 @@ unsafe fn make_fftblue_plan(length: usize) -> fftblue_plan {
                         ; } while(0); return
                                               ((void *)0)
                                                   ; }*/
-    sincos_2pibyn(2 * (*plan).n, tmp.as_mut_slice());
-    (*plan).bk[0] = 1.0;
-    (*plan).bk[1] = 0.0;
+    sincos_2pibyn(2 * length, tmp.as_mut_slice());
+    
+    tmp_bk.insert(0, 1.0);
+    tmp_bk.insert(1, 0.0);
+
 
     let mut coeff: usize = 0;
-    for m in 1..(*plan).n {
+    for m in 1..length {
         coeff += 2 * m - 1;
-        if coeff >= 2 * (*plan).n {
-            coeff -= 2 * (*plan).n;
+        if coeff >= 2 * length {
+            coeff -= 2 * length;
         }
-        (*plan).bk[2 * m] = tmp[2 * coeff];
-        (*plan).bk[2 * m + 1] = tmp[2 * coeff + 1];
+        tmp_bk.insert(2 * m, tmp[2 * coeff]);
+        tmp_bk.insert(2 * m + 1, tmp[2 * coeff + 1]);
     }
 
-    let xn2: f64 = 1.0 / (*plan).n2 as f64;
-    (*plan).bkf[0] = (*plan).bk[0] * xn2;
-    (*plan).bkf[1] = (*plan).bk[1] * xn2;
+    let xn2: f64 = 1.0 / tmp_n2 as f64;
+    tmp_bkf.insert(0, tmp_bk[0] * xn2);
+    tmp_bkf.insert(1, tmp_bk[1] * xn2);
 
     let mut m = 2;
-    while m < 2 * (*plan).n {
-        (*plan).bkf[2 * (*plan).n2 - m] = (*plan).bk[m] * xn2;
-        (*plan).bkf[m] = (*plan).bkf[2 * (*plan).n2 - m];
-        (*plan).bkf[2 * (*plan).n2 - m + 1] = (*plan).bk[m + 1] * xn2;
-        (*plan).bkf[m + 1] = (*plan).bkf[2 * (*plan).n2 - m + 1];
+    while m < 2 * length {
+        tmp_bkf.insert(2 * tmp_n2 - m, tmp_bk[m] * xn2);
+        tmp_bkf.insert(m, tmp_bkf[2 * tmp_n2 - m]);
+        tmp_bkf.insert(2 * tmp_n2 - m + 1, tmp_bk[m + 1] * xn2);
+        tmp_bkf.insert(m + 1, tmp_bkf[2 * tmp_n2 - m + 1]);
         m += 2;
     }
 
-    m = 2 * (*plan).n;
-    while m <= (2 * (*plan).n2 - 2 * (*plan).n + 1) {
-        (*plan).bkf[m] = 0.;
+    m = 2 * length;
+    while m <= (2 * tmp_n2 - 2 * length + 1) {
+        tmp_bkf.push(0.0);
         m += 1;
     }
-    (*plan).plan = make_cfftp_plan((*plan).n2);
-    /*if (!plan->plan)
-    { do { free(tmp); (tmp)=
-
-     ((void *)0)
-
-     ; } while(0); do { free(plan->mem); (plan->mem)=
-
-                   ((void *)0)
-
-                   ; } while(0); do { free(plan); (plan)=
-
-                                       ((void *)0)
-
-                                       ; } while(0); return
-
-                                                             ((void *)0)
-
-                                                                 ; }*/
     /*if (cfftp_forward(plan->plan,plan->bkf,1.)!=0)
     { do { free(tmp); (tmp)=
 
@@ -3064,16 +3066,28 @@ unsafe fn make_fftblue_plan(length: usize) -> fftblue_plan {
                                                                  ; }*/
     //do { free(tmp); (tmp)=((void *)0) ; } while(0);
 
+    let tmp_fftblue_plan_i = fftblue_plan_i{
+        n: length, 
+        n2: tmp_n2, 
+        plan: make_cfftp_plan(tmp_n2),
+         mem: tmp_mem,
+         bk: tmp_bk,
+         bkf: tmp_bkf};
+    let plan: fftblue_plan = Box::into_raw(Box::new(tmp_fftblue_plan_i));
     return plan;
 }
 
-unsafe fn destroy_cfftp_plan(plan: cfftp_plan) {
-    free(plan as *mut core::ffi::c_void);
+fn destroy_cfftp_plan(plan: cfftp_plan) {
+    unsafe {
+        Box::from_raw(plan);
+    }
 }
 
-unsafe fn destroy_fftblue_plan(fftblueplan: fftblue_plan) {
-    destroy_cfftp_plan((*fftblueplan).plan);
-    free(fftblueplan as *mut c_void);
+fn destroy_fftblue_plan(fftblueplan: fftblue_plan) {
+    unsafe {
+        destroy_cfftp_plan((*fftblueplan).plan);
+        Box::from_raw(fftblueplan);
+    }
 }
 
 pub struct cfft_plan_i {
@@ -3088,10 +3102,11 @@ pub unsafe extern "C" fn make_cfft_plan(length: usize) -> cfft_plan {
         return null_mut() as cfft_plan;
     //return 0 as *mut c_void as *mut _ as cfft_plan;
     } else {
-        let mut plan: cfft_plan = malloc(size_of::<cfft_plan_i>()) as cfft_plan;
+        //let mut plan: cfft_plan = malloc(size_of::<cfft_plan_i>()) as cfft_plan;
+        let mut plan: cfft_plan = Box::into_raw(Box::new(cfft_plan_i{packplan: null_mut(), blueplan: null_mut()}));
         if ((length < 50) || (largest_prime_factor(length) <= ((length as f64).sqrt() as usize))) {
             (*plan).packplan = make_cfftp_plan(length);
-            forget(plan);
+            //forget(plan);
             return plan;
         }
         let comp1: f64 = cost_guess(length);
@@ -3102,14 +3117,16 @@ pub unsafe extern "C" fn make_cfft_plan(length: usize) -> cfft_plan {
         } else {
             (*plan).packplan = make_cfftp_plan(length);
         }
-        forget(plan);
+        //forget(plan);
         return plan;
     }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn destroy_cfft_plan(plan: cfft_plan) {
-    free(plan as *mut c_void);
+    destroy_fftblue_plan((*plan).blueplan);
+    destroy_cfftp_plan((*plan).packplan);
+    Box::from_raw(plan as *mut c_void);
 }
 
 unsafe fn fftblue_fft(plan: fftblue_plan, c: &mut [f64], isign: i32, fct: f64) -> i32 {
@@ -3261,13 +3278,13 @@ struct rfftp_plan_i {
     mem: Vec<f64>,
     fct: [rfftp_fctdata; NFCT],
 }
-pub type rfftp_plan = *mut rfftp_plan_i;
+type rfftp_plan = *mut rfftp_plan_i;
 
-struct rfft_plan_i {
+pub struct rfft_plan_i {
     packplan: rfftp_plan,
     blueplan: fftblue_plan,
 }
-pub type rfft_plan = *mut rfft_plan_i;
+type rfft_plan = *mut rfft_plan_i;
 
 #[no_mangle]
 pub unsafe extern "C" fn make_rfft_plan(length: usize) -> rfft_plan {
@@ -3450,7 +3467,8 @@ unsafe fn rfftp_comp_twiddle(plan: rfftp_plan) -> i32 {
     return 0;
 }
 
-unsafe fn destroy_rfft_plan(plan: rfft_plan) {
+#[no_mangle]
+pub unsafe extern "C" fn destroy_rfft_plan(plan: rfft_plan) {
     if (*plan).blueplan.is_null() == false {
         destroy_fftblue_plan((*plan).blueplan);
     }
@@ -3473,9 +3491,9 @@ pub unsafe extern "C" fn rfft_backward(plan: rfft_plan, c: *mut f64, fct: f64) -
         return rfftp_backward((*plan).packplan, tmp_c, fct);
     } else {
         let tmp_blueplan = (*plan).blueplan;
-        let len = 32;
+        let len = (*tmp_blueplan).n;// fixme: is that n or n2, or other field?
         let tmp_c = from_raw_parts_mut(c, len);
-        return rfftblue_backward((*plan).blueplan, tmp_c, fct);
+        return rfftblue_backward(tmp_blueplan, tmp_c, fct);
     }
 }
 
@@ -4973,3 +4991,13 @@ unsafe fn copy_and_norm(c: *mut f64, p1: *mut f64, n: usize, fct: f64) {
         }
     }
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn rfft_length(plan: rfft_plan)->usize{
+  if (*plan).packplan.is_null() {
+      let tmp_packplan = (*plan).packplan;
+      return (*tmp_packplan).length;
+    }
+    let tmp_blueplan = (*plan).blueplan;
+  return (*tmp_blueplan).n;
+  }
