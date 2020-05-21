@@ -9,6 +9,16 @@ edition = "2018"
 name = "pocketfft_rust"
 crate-type = ["cdylib", "staticlib"]
 
+[profile.release]
+opt-level = 'z'
+lto = true # enable link time optimization
+panic = "abort" # disable stack unwinding on panic
+
+[profile.dev]
+opt-level = 'z'
+lto = true # enable link time optimization
+panic = "abort" # disable stack unwinding on panic
+
 [dependencies]
 libc = "0.2"
 

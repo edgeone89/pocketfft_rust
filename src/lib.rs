@@ -4,14 +4,14 @@
  */
 
 use core::ffi::c_void;
-use libc::free;
-use libc::malloc;
-use libc::memcpy;
-use std::mem::forget;
-use std::mem::size_of;
-use std::ptr::null;
+//use libc::free;
+//use libc::malloc;
+//use libc::memcpy;
+//use std::mem::forget;
+//use std::mem::size_of;
+//use std::ptr::null;
 use std::ptr::null_mut;
-use std::slice::from_raw_parts;
+//use std::slice::from_raw_parts;
 use std::slice::from_raw_parts_mut;
 
 fn my_sincosm1pi(a: f64, res: &mut [f64]) {
@@ -124,7 +124,7 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
     //calc_first_octant(n<<2, p);
     calc_first_octant(n << 2, &mut res[(n - 1)..]);
     let mut i4 = 0;
-    let mut iN = n;
+    let iN = n;
     let mut i = 0;
     while i4 <= iN - i4
     /* octant 0 */
@@ -303,7 +303,7 @@ fn cost_guess(n: usize) -> f64 {
     }
     if n_temp > 1 {
         if n_temp <= 5 {
-            result += (n_temp as f64);
+            result += n_temp as f64;
         } else {
             result += lfp * (n_temp as f64);
         }
@@ -388,13 +388,13 @@ fn SCALEC(a: &mut [f64], b: f64) {
 }
 
 fn ROT90(a: &mut [f64]) {
-    let mut tmp_: f64 = a[0];
+    let tmp_: f64 = a[0];
     a[0] = -a[1];
     a[1] = tmp_;
 }
 
 fn ROTM90(a: &mut [f64]) {
-    let mut tmp_: f64 = -a[0];
+    let tmp_: f64 = -a[0];
     a[0] = a[1];
     a[1] = tmp_;
 }
@@ -2740,96 +2740,94 @@ fn passg(
     }
 }
 
-fn pass_all(plan: *mut cfftp_plan_i, c: &mut [f64], fct: f64, sign: i64) -> i32 {
-    unsafe {
-        //if (plan->length==1) return 0;
-        let len: usize = (*plan).length;
-        let mut l1: usize = 1;
-        let nf: usize = (*plan).nfct;
-        let mut ch: Vec<f64> = Vec::new();
-        //if (!ch) return -1;
-        //let mut p1=c;
-        //let mut p2=ch;
-        let mut ch_slice = ch.as_mut_slice();
+fn pass_all(plan: &mut cfftp_plan_i, c: &mut [f64], fct: f64, sign: i64) -> i32 {
+    //if (plan->length==1) return 0;
+    let len: usize = plan.length;
+    let mut l1: usize = 1;
+    let nf: usize = plan.nfct;
+    let mut ch: Vec<f64> = Vec::new();
+    //if (!ch) return -1;
+    //let mut p1=c;
+    //let mut p2=ch;
+    let ch_slice = ch.as_mut_slice();
 
-        for k1 in 0..nf {
-            let ip = (*plan).fct[k1].fct;
-            let l2 = ip * l1;
-            let ido = len / l2;
-            if ip == 4 {
-                if sign > 0 {
-                    pass4b(ido, l1, c, ch_slice, (*plan).fct[k1].tw.as_slice())
-                } else {
-                    pass4f(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice());
-                }
-            } else if ip == 2 {
-                if sign > 0 {
-                    pass2b(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice())
-                } else {
-                    pass2f(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice());
-                }
-            } else if ip == 3 {
-                if sign > 0 {
-                    pass3b(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice())
-                } else {
-                    pass3f(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice());
-                }
-            } else if ip == 5 {
-                if sign > 0 {
-                    pass5b(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice())
-                } else {
-                    pass5f(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice());
-                }
-            } else if ip == 7 {
-                pass7(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice(), sign);
-            } else if ip == 11 {
-                pass11(ido, l1, &c, ch_slice, (*plan).fct[k1].tw.as_slice(), sign);
+    for k1 in 0..nf {
+        let ip = plan.fct[k1].fct;
+        let l2 = ip * l1;
+        let ido = len / l2;
+        if ip == 4 {
+            if sign > 0 {
+                pass4b(ido, l1, c, ch_slice, plan.fct[k1].tw.as_slice())
             } else {
-                passg(
-                    ido,
-                    ip,
-                    l1,
-                    c,
-                    ch_slice,
-                    (*plan).fct[k1].tw.as_slice(),
-                    (*plan).fct[k1].tws.as_slice(),
-                    sign,
-                );
-                //if ()        { return -1; }
-                /*do {
-                    cmplx * tmp_=(p1);
-                    (p1)=(p2);
-                    (p2)=tmp_;
-                } while(0);
-                }*/
-                /*do {
+                pass4f(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice());
+            }
+        } else if ip == 2 {
+            if sign > 0 {
+                pass2b(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice())
+            } else {
+                pass2f(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice());
+            }
+        } else if ip == 3 {
+            if sign > 0 {
+                pass3b(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice())
+            } else {
+                pass3f(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice());
+            }
+        } else if ip == 5 {
+            if sign > 0 {
+                pass5b(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice())
+            } else {
+                pass5f(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice());
+            }
+        } else if ip == 7 {
+            pass7(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice(), sign);
+        } else if ip == 11 {
+            pass11(ido, l1, &c, ch_slice, plan.fct[k1].tw.as_slice(), sign);
+        } else {
+            passg(
+                ido,
+                ip,
+                l1,
+                c,
+                ch_slice,
+                plan.fct[k1].tw.as_slice(),
+                plan.fct[k1].tws.as_slice(),
+                sign,
+            );
+            //if ()        { return -1; }
+            /*do {
                 cmplx * tmp_=(p1);
                 (p1)=(p2);
                 (p2)=tmp_;
-                } while(0);*/
-                l1 = l2;
-            }
-            /*if (p1!=c) {
-                if (fct!=1.){
-                for i in 0..len {
-                    c[i] = ch[i]*fct;
-                    c[i+1] = ch[i+1]*fct;
-                    }
-                }
-                else {
-                memcpy (c,p1,len*sizeof(cmplx));
-                }
-                }
-            else{
-                if (fct!=1.) {
-                for i in 0..len {
-                    c[i] *= fct;
-                    c[i+1] *= fct;
-                    }
-            }
-                }*/
-            //
+            } while(0);
+            }*/
+            /*do {
+            cmplx * tmp_=(p1);
+            (p1)=(p2);
+            (p2)=tmp_;
+            } while(0);*/
+            l1 = l2;
         }
+        /*if (p1!=c) {
+            if (fct!=1.){
+            for i in 0..len {
+                c[i] = ch[i]*fct;
+                c[i+1] = ch[i+1]*fct;
+                }
+            }
+            else {
+            memcpy (c,p1,len*sizeof(cmplx));
+            }
+            }
+        else{
+            if (fct!=1.) {
+            for i in 0..len {
+                c[i] *= fct;
+                c[i+1] *= fct;
+                }
+        }
+            }*/
+        //
     }
     return 0;
 }
@@ -2854,8 +2852,8 @@ fn cfftp_factorize(plan: &mut cfftp_plan_i) -> i32 {
         plan.fct[nfct].fct = 2;
         nfct += 1;
         let tmp_ = plan.fct[0].fct;
-        (plan.fct[0].fct) = plan.fct[nfct - 1].fct;
-        (plan.fct[nfct - 1].fct) = tmp_;
+        plan.fct[0].fct = plan.fct[nfct - 1].fct;
+        plan.fct[nfct - 1].fct = tmp_;
     }
     let mut maxl: usize = ((length as f64).sqrt() as usize) + 1;
     let mut divisor: usize = 3;
@@ -2881,25 +2879,23 @@ fn cfftp_factorize(plan: &mut cfftp_plan_i) -> i32 {
     return 0;
 }
 
-fn cfftp_twsize(plan: *mut cfftp_plan_i) -> usize {
+fn cfftp_twsize(plan: &mut cfftp_plan_i) -> usize {
     let mut twsize: usize = 0;
     let mut l1: usize = 1;
-    unsafe {
-        for k in 0..(*plan).nfct {
-            let ip = (*plan).fct[k].fct;
-            let ido = (*plan).length / (l1 * ip);
-            twsize += (ip - 1) * (ido - 1);
-            if ip > 11 {
-                twsize += ip;
-            }
-            l1 *= ip;
+    for k in 0..plan.nfct {
+        let ip = plan.fct[k].fct;
+        let ido = plan.length / (l1 * ip);
+        twsize += (ip - 1) * (ido - 1);
+        if ip > 11 {
+            twsize += ip;
         }
+        l1 *= ip;
     }
     return twsize;
 }
 
 fn cfftp_comp_twiddle(plan: &mut cfftp_plan_i) -> i32 {
-    let length: usize = unsafe { (*plan).length };
+    let length: usize = plan.length;
     let mut twid: Vec<f64> = Vec::with_capacity(2 * length);
     //if (!twid) {return -1;}
     sincos_2pibyn(length, twid.as_mut_slice());
@@ -2937,13 +2933,16 @@ fn make_cfftp_plan(len: usize) -> cfftp_plan {
 
     let mut tmp_fct: Vec<cfftp_fctdata> = Vec::new();
     for i in 0..NFCT {
-        tmp_fct.insert(i, cfftp_fctdata {
-            fct: 0,
-            tw: Vec::new(),
-            tws: Vec::new(),
-        });
+        tmp_fct.insert(
+            i,
+            cfftp_fctdata {
+                fct: 0,
+                tw: Vec::new(),
+                tws: Vec::new(),
+            },
+        );
     } //(cfftp_fctdata){0,0,0};
-    //plan.mem=0;
+      //plan.mem=0;
     let tmp_cfftp_plan_i = cfftp_plan_i {
         length: len,
         nfct: 0,
@@ -2989,9 +2988,9 @@ type fftblue_plan = *mut fftblue_plan_i;
 fn make_fftblue_plan(length: usize) -> fftblue_plan {
     //let mut plan: fftblue_plan = malloc((1) * size_of::<fftblue_plan_i>()) as fftblue_plan;
     let tmp_n2 = good_size(length * 2 - 1);
-    let tmp_mem: Vec<f64> = Vec::with_capacity(2*length+2*tmp_n2);
-    let mut tmp_bk: Vec<f64> = Vec::with_capacity(2*length+2*tmp_n2);
-    let mut tmp_bkf: Vec<f64> = Vec::with_capacity(2*length);
+    let tmp_mem: Vec<f64> = Vec::with_capacity(2 * length + 2 * tmp_n2);
+    let mut tmp_bk: Vec<f64> = Vec::with_capacity(2 * length + 2 * tmp_n2);
+    let mut tmp_bkf: Vec<f64> = Vec::with_capacity(2 * length);
     //if (!plan) return ((void *)0) ;
     //(*plan).n = length;
     //(*plan).n2 = good_size((*plan).n * 2 - 1);
@@ -3018,10 +3017,9 @@ fn make_fftblue_plan(length: usize) -> fftblue_plan {
                                               ((void *)0)
                                                   ; }*/
     sincos_2pibyn(2 * length, tmp.as_mut_slice());
-    
+
     tmp_bk.insert(0, 1.0);
     tmp_bk.insert(1, 0.0);
-
 
     let mut coeff: usize = 0;
     for m in 1..length {
@@ -3066,13 +3064,14 @@ fn make_fftblue_plan(length: usize) -> fftblue_plan {
                                                                  ; }*/
     //do { free(tmp); (tmp)=((void *)0) ; } while(0);
 
-    let tmp_fftblue_plan_i = fftblue_plan_i{
-        n: length, 
-        n2: tmp_n2, 
+    let tmp_fftblue_plan_i = fftblue_plan_i {
+        n: length,
+        n2: tmp_n2,
         plan: make_cfftp_plan(tmp_n2),
-         mem: tmp_mem,
-         bk: tmp_bk,
-         bkf: tmp_bkf};
+        mem: tmp_mem,
+        bk: tmp_bk,
+        bkf: tmp_bkf,
+    };
     let plan: fftblue_plan = Box::into_raw(Box::new(tmp_fftblue_plan_i));
     return plan;
 }
@@ -3103,8 +3102,11 @@ pub unsafe extern "C" fn make_cfft_plan(length: usize) -> cfft_plan {
     //return 0 as *mut c_void as *mut _ as cfft_plan;
     } else {
         //let mut plan: cfft_plan = malloc(size_of::<cfft_plan_i>()) as cfft_plan;
-        let mut plan: cfft_plan = Box::into_raw(Box::new(cfft_plan_i{packplan: null_mut(), blueplan: null_mut()}));
-        if ((length < 50) || (largest_prime_factor(length) <= ((length as f64).sqrt() as usize))) {
+        let mut plan: cfft_plan = Box::into_raw(Box::new(cfft_plan_i {
+            packplan: null_mut(),
+            blueplan: null_mut(),
+        }));
+        if (length < 50) || (largest_prime_factor(length) <= ((length as f64).sqrt() as usize)) {
             (*plan).packplan = make_cfftp_plan(length);
             //forget(plan);
             return plan;
@@ -3129,11 +3131,11 @@ pub unsafe extern "C" fn destroy_cfft_plan(plan: cfft_plan) {
     Box::from_raw(plan as *mut c_void);
 }
 
-unsafe fn fftblue_fft(plan: fftblue_plan, c: &mut [f64], isign: i32, fct: f64) -> i32 {
-    let n: usize = (*plan).n;
-    let n2: usize = (*plan).n2;
-    let bk = &(*plan).bk;
-    let bkf = &(*plan).bkf;
+fn fftblue_fft(plan: &mut fftblue_plan_i, c: &mut [f64], isign: i32, fct: f64) -> i32 {
+    let n: usize = plan.n;
+    let n2: usize = plan.n2;
+    let bk = &plan.bk;
+    let bkf = &plan.bkf;
     //let akf = ((double *)malloc((2*n2)*sizeof(double)));
     let mut akf: Vec<f64> = Vec::with_capacity(2 * n2);
     //if (!akf) return -1;
@@ -3204,29 +3206,26 @@ unsafe fn fftblue_fft(plan: fftblue_plan, c: &mut [f64], isign: i32, fct: f64) -
     return 0;
 }
 
-unsafe fn cfftblue_backward(plan: fftblue_plan, c: &mut [f64], fct: f64) -> i32 {
-    return fftblue_fft(plan, c, 1, fct);
+fn cfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    return fftblue_fft(&mut *plan, c, 1, fct);
 }
 
-fn cfftp_backward(plan: cfftp_plan, c: &mut [f64], fct: f64) -> i32 {
-    unsafe {
-        return pass_all(plan, c, fct, 1);
-    };
+fn cfftp_backward(plan: &mut cfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    return pass_all(plan, c, fct, 1);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn cfft_backward(plan: cfft_plan, c: *mut f64, fct: f64) -> i32 {
-    use std::slice::from_raw_parts_mut;
     if (*plan).packplan.is_null() == false {
         let tmp_packplan = (*plan).packplan;
         let len = (*tmp_packplan).length;
-        let mut tmp_c = from_raw_parts_mut(c, len);
-        return cfftp_backward((*plan).packplan, tmp_c, fct);
+        let tmp_c = from_raw_parts_mut(c, len);
+        return cfftp_backward(&mut *tmp_packplan, tmp_c, fct);
     }
     let tmp_blueplan = (*plan).blueplan;
-    let mut len = (*tmp_blueplan).n * 2;
-    let mut tmp_c = from_raw_parts_mut(c, len);
-    return cfftblue_backward((*plan).blueplan, tmp_c, fct);
+    let len = (*tmp_blueplan).n * 2;
+    let tmp_c = from_raw_parts_mut(c, len);
+    return cfftblue_backward(&mut *tmp_blueplan, tmp_c, fct);
 }
 
 #[no_mangle]
@@ -3234,24 +3233,22 @@ pub unsafe extern "C" fn cfft_forward(plan: cfft_plan, c: *mut f64, fct: f64) ->
     if (*plan).packplan.is_null() == false {
         let tmp_packplan = (*plan).packplan;
         let len = (*tmp_packplan).length;
-        let mut tmp_c = std::slice::from_raw_parts_mut(c, len);
-        return cfftp_forward((*plan).packplan, tmp_c, fct);
+        let tmp_c = std::slice::from_raw_parts_mut(c, len);
+        return cfftp_forward(&mut *tmp_packplan, tmp_c, fct);
     }
     // if (plan->blueplan)
     let tmp_blueplan = (*plan).blueplan;
-    let mut len = (*tmp_blueplan).n * 2;
-    let mut tmp_c = std::slice::from_raw_parts_mut(c, len);
-    return cfftblue_forward((*plan).blueplan, tmp_c, fct);
+    let len = (*tmp_blueplan).n * 2;
+    let tmp_c = std::slice::from_raw_parts_mut(c, len);
+    return cfftblue_forward(&mut *tmp_blueplan, tmp_c, fct);
 }
 
-fn cfftp_forward(plan: cfftp_plan, c: &mut [f64], fct: f64) -> i32 {
+fn cfftp_forward(plan: &mut cfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
     return pass_all(plan, c, fct, -1);
 }
 
-fn cfftblue_forward(plan: fftblue_plan, c: &mut [f64], fct: f64) -> i32 {
-    unsafe {
-        return fftblue_fft(plan, c, -1, fct);
-    }
+fn cfftblue_forward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    return fftblue_fft(plan, c, -1, fct);
 }
 
 #[no_mangle]
@@ -3276,7 +3273,7 @@ struct rfftp_plan_i {
     length: usize,
     nfct: usize,
     mem: Vec<f64>,
-    fct: [rfftp_fctdata; NFCT],
+    fct: Vec<rfftp_fctdata>,
 }
 type rfftp_plan = *mut rfftp_plan_i;
 
@@ -3291,18 +3288,20 @@ pub unsafe extern "C" fn make_rfft_plan(length: usize) -> rfft_plan {
     if length == 0 {
         return null_mut();
     }
-    let mut plan: rfft_plan = (malloc((1) * size_of::<rfft_plan_i>())) as rfft_plan;
+    //let mut plan: rfft_plan = (malloc((1) * size_of::<rfft_plan_i>())) as rfft_plan;
+    let tmp_rfft_plan_i = rfft_plan_i{packplan: null_mut(),blueplan: null_mut()};
+    let mut plan: rfft_plan = Box::into_raw(Box::new(tmp_rfft_plan_i));
     if plan.is_null() {
         return null_mut();
     }
-    (*plan).blueplan = null_mut();
-    (*plan).packplan = null_mut() as rfftp_plan;
+    //(*plan).blueplan = null_mut();
+    //(*plan).packplan = null_mut();
     let length_sqrt = (length as f64).sqrt() as usize;
     if (length < 50) || (largest_prime_factor(length) <= length_sqrt) {
         (*plan).packplan = make_rfftp_plan(length);
         if (*plan).packplan.is_null() {
-            free(plan as *mut c_void);
-            plan = null_mut();
+            //free(plan as *mut c_void);
+            Box::from_raw(plan);
             return null_mut();
         }
         return plan;
@@ -3314,66 +3313,83 @@ pub unsafe extern "C" fn make_rfft_plan(length: usize) -> rfft_plan {
         (*plan).blueplan = make_fftblue_plan(length);
         let tmp_blueplan = (*plan).blueplan;
         if tmp_blueplan.is_null() {
-            free(plan as *mut c_void);
-            plan = null_mut();
+            //free(plan as *mut c_void);
+            Box::from_raw(plan);
             return null_mut();
         }
     } else {
         (*plan).packplan = make_rfftp_plan(length);
         let tmp_packplan = (*plan).packplan;
         if tmp_packplan.is_null() {
-            free(plan as *mut c_void);
-            plan = null_mut();
+            //free(plan as *mut c_void);
+            Box::from_raw(plan);
             return null_mut();
         }
     }
     return plan;
 }
 
-unsafe fn make_rfftp_plan(length: usize) -> rfftp_plan {
-    if length == 0 {
+fn make_rfftp_plan(len: usize) -> rfftp_plan {
+    if len == 0 {
         return null_mut();
     };
-    let mut plan: rfftp_plan = (malloc((1) * size_of::<rfftp_plan_i>())) as rfftp_plan;
-    if plan.is_null() {
-        return null_mut();
-    }
-    (*plan).length = length;
-    (*plan).nfct = 0;
+    let mut tmp_fct: Vec<rfftp_fctdata> = Vec::with_capacity(NFCT);
     for i in 0..NFCT {
-        (*plan).fct[i] = rfftp_fctdata {
-            fct: 0,
-            tw: Vec::new(),
-            tws: Vec::new(),
-        };
+        tmp_fct.insert(
+            i,
+            rfftp_fctdata {
+                fct: 0,
+                tw: Vec::new(),
+                tws: Vec::new(),
+            },
+        );
     }
-    if length == 1 {
+    //let mut plan: rfftp_plan = (malloc((1) * size_of::<rfftp_plan_i>())) as rfftp_plan;
+    let tmp_rfftp_plan_i = rfftp_plan_i {
+        length: len,
+        nfct: 0,
+        mem: Vec::new(),
+        fct: tmp_fct,
+    };
+    let mut plan: rfftp_plan = Box::into_raw(Box::new(tmp_rfftp_plan_i));
+
+    unsafe {
+        if plan.is_null() {
+            Box::from_raw(plan);
+            return null_mut();
+        }
+    }
+    //(*plan).length = len;
+    //(*plan).nfct = 0;
+    if len == 1 {
         return plan;
     }
-    if rfftp_factorize(plan) != 0 {
-        free(plan as *mut c_void);
-        plan = null_mut();
-        return null_mut();
-    }
-    let tws: usize = rfftp_twsize(plan);
-    //(*plan).mem=(malloc((tws)*size_of::<f64>())) as *mut f64;
-    (*plan).mem = Vec::with_capacity(tws);
-    if rfftp_comp_twiddle(plan) != 0 {
-        free(plan as *mut c_void);
-        plan = null_mut();
-        return null_mut();
+    unsafe {
+        if rfftp_factorize(&mut *plan) != 0 {
+            //free(plan as *mut c_void);
+            Box::from_raw(plan);
+            return null_mut();
+        }
+        let tws: usize = rfftp_twsize(&mut *plan);
+        //(*plan).mem=(malloc((tws)*size_of::<f64>())) as *mut f64;
+        (*plan).mem = Vec::with_capacity(tws);
+        if rfftp_comp_twiddle(&mut *plan) != 0 {
+            //free(plan as *mut c_void);
+            Box::from_raw(plan);
+            return null_mut();
+        }
     }
     return plan;
 }
 
-unsafe fn rfftp_factorize(plan: rfftp_plan) -> i32 {
-    let mut length = (*plan).length;
+fn rfftp_factorize(plan: &mut rfftp_plan_i) -> i32 {
+    let mut length = plan.length;
     let mut nfct: usize = 0;
     while (length % 4) == 0 {
         if nfct >= NFCT {
             return -1;
         }
-        (*plan).fct[nfct].fct = 4;
+        plan.fct[nfct].fct = 4;
         nfct += 1;
         length >>= 2;
     }
@@ -3383,12 +3399,12 @@ unsafe fn rfftp_factorize(plan: rfftp_plan) -> i32 {
         if nfct >= NFCT {
             return -1;
         }
-        (*plan).fct[nfct].fct = 2;
+        plan.fct[nfct].fct = 2;
         nfct += 1;
 
-        let tmp_: usize = (*plan).fct[0].fct;
-        (*plan).fct[0].fct = (*plan).fct[nfct - 1].fct;
-        (*plan).fct[nfct - 1].fct = tmp_;
+        let tmp_: usize = plan.fct[0].fct;
+        plan.fct[0].fct = plan.fct[nfct - 1].fct;
+        plan.fct[nfct - 1].fct = tmp_;
     }
     let mut maxl: usize = ((length as f64).sqrt() as usize) + 1;
     let mut divisor: usize = 3;
@@ -3408,19 +3424,19 @@ unsafe fn rfftp_factorize(plan: rfftp_plan) -> i32 {
     }
 
     if length > 1 {
-        (*plan).fct[nfct].fct = length;
+        plan.fct[nfct].fct = length;
         nfct += 1;
     }
-    (*plan).nfct = nfct;
+    plan.nfct = nfct;
     return 0;
 }
 
-unsafe fn rfftp_twsize(plan: rfftp_plan) -> usize {
+fn rfftp_twsize(plan: &mut rfftp_plan_i) -> usize {
     let mut twsize: usize = 0;
     let mut l1: usize = 1;
-    for k in 0..(*plan).nfct {
-        let ip = (*plan).fct[k].fct;
-        let ido = (*plan).length / (l1 * ip);
+    for k in 0..plan.nfct {
+        let ip = plan.fct[k].fct;
+        let ido = plan.length / (l1 * ip);
         twsize += (ip - 1) * (ido - 1);
         if ip > 5 {
             twsize += 2 * ip;
@@ -3430,35 +3446,35 @@ unsafe fn rfftp_twsize(plan: rfftp_plan) -> usize {
     return twsize;
 }
 
-unsafe fn rfftp_comp_twiddle(plan: rfftp_plan) -> i32 {
-    let length: usize = (*plan).length;
+fn rfftp_comp_twiddle(plan: &mut rfftp_plan_i) -> i32 {
+    let length: usize = plan.length;
     //let twid: *mut f64 = (malloc((2*length)*size_of::<f64>())) as (*mut f64);
     let mut twid: Vec<f64> = Vec::with_capacity(2 * length);
     sincos_2pibyn_half(length, twid.as_mut_slice());
     let mut l1: usize = 1;
     //fixme:  let mut ptr = (*plan).mem;
-    for k in 0..(*plan).nfct {
-        let ip: usize = (*plan).fct[k].fct;
+    for k in 0..plan.nfct {
+        let ip: usize = plan.fct[k].fct;
         let ido = length / (l1 * ip);
-        if k < (*plan).nfct - 1 {
+        if k < plan.nfct - 1 {
             //fixme:  (*plan).fct[k].tw = ptr;
             //fixme: ptr+=(ip-1)*(ido-1);
             for j in 1..ip {
                 for i in 1..((ido - 1) / 2 + 1) {
-                    (*plan).fct[k].tw[(j - 1) * (ido - 1) + 2 * i - 2] = twid[2 * j * l1 * i];
-                    (*plan).fct[k].tw[(j - 1) * (ido - 1) + 2 * i - 1] = twid[2 * j * l1 * i + 1];
+                    plan.fct[k].tw[(j - 1) * (ido - 1) + 2 * i - 2] = twid[2 * j * l1 * i];
+                    plan.fct[k].tw[(j - 1) * (ido - 1) + 2 * i - 1] = twid[2 * j * l1 * i + 1];
                 }
             }
             if ip > 5 {
                 //fixme:  (*plan).fct[k].tws = ptr;
                 //fixme:  ptr+=2*ip;
-                (*plan).fct[k].tws[0] = 1.0;
-                (*plan).fct[k].tws[1] = 0.0;
+                plan.fct[k].tws[0] = 1.0;
+                plan.fct[k].tws[1] = 0.0;
                 for i in 1..(ip >> 1) + 1 {
-                    (*plan).fct[k].tws[2 * i] = twid[2 * i * (length / ip)];
-                    (*plan).fct[k].tws[2 * i + 1] = twid[2 * i * (length / ip) + 1];
-                    (*plan).fct[k].tws[2 * (ip - i)] = twid[2 * i * (length / ip)];
-                    (*plan).fct[k].tws[2 * (ip - i) + 1] = -twid[2 * i * (length / ip) + 1];
+                    plan.fct[k].tws[2 * i] = twid[2 * i * (length / ip)];
+                    plan.fct[k].tws[2 * i + 1] = twid[2 * i * (length / ip) + 1];
+                    plan.fct[k].tws[2 * (ip - i)] = twid[2 * i * (length / ip)];
+                    plan.fct[k].tws[2 * (ip - i) + 1] = -twid[2 * i * (length / ip) + 1];
                 }
             }
             l1 *= ip;
@@ -3475,11 +3491,15 @@ pub unsafe extern "C" fn destroy_rfft_plan(plan: rfft_plan) {
     if (*plan).packplan.is_null() == false {
         destroy_rfftp_plan((*plan).packplan);
     }
-    free(plan as *mut c_void);
+    //free(plan as *mut c_void);
+    Box::from_raw(plan);
 }
 
-unsafe fn destroy_rfftp_plan(plan: rfftp_plan) {
-    free(plan as *mut c_void);
+fn destroy_rfftp_plan(plan: rfftp_plan) {
+    unsafe {
+        //free(plan as *mut c_void);
+        Box::from_raw(plan);
+    }
 }
 
 #[no_mangle]
@@ -3488,41 +3508,42 @@ pub unsafe extern "C" fn rfft_backward(plan: rfft_plan, c: *mut f64, fct: f64) -
         let tmp_packplan = (*plan).packplan;
         let len = (*tmp_packplan).length;
         let tmp_c = from_raw_parts_mut(c, len);
-        return rfftp_backward((*plan).packplan, tmp_c, fct);
+        return rfftp_backward(&mut *tmp_packplan, tmp_c, fct);
     } else {
         let tmp_blueplan = (*plan).blueplan;
-        let len = (*tmp_blueplan).n;// fixme: is that n or n2, or other field?
+        let len = (*tmp_blueplan).n; // fixme: is that n or n2, or other field?
         let tmp_c = from_raw_parts_mut(c, len);
-        return rfftblue_backward(tmp_blueplan, tmp_c, fct);
+        return rfftblue_backward(&mut *tmp_blueplan, tmp_c, fct);
     }
 }
 
-unsafe fn rfftp_backward(plan: rfftp_plan, c: &mut [f64], fct: f64) -> i32 {
-    if (*plan).length == 1 {
+fn rfftp_backward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    if plan.length == 1 {
         return 0;
     }
-    let n: usize = (*plan).length;
+    let n: usize = plan.length;
     let mut l1: usize = 1;
-    let nf = (*plan).nfct;
-    let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
-    if ch.is_null() {
+    let nf = plan.nfct;
+    //let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
+    let mut ch: Vec<f64> = Vec::with_capacity(n);
+    /*if ch.is_null() {
         return -1;
-    }
-    let mut p1: *mut f64 = c.as_mut_ptr();
-    let mut p2: *mut f64 = ch;
+    }*/
+    let mut p1: &mut [f64] = c;
+    let mut p2: &mut [f64] = ch.as_mut_slice();
 
     let mut k: usize = 0;
     while k < nf {
-        let ip: usize = (*plan).fct[k].fct;
+        let ip: usize = plan.fct[k].fct;
         let ido: usize = n / (ip * l1);
         if ip == 4 {
-            radb4(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radb4(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 2 {
-            radb2(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radb2(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 3 {
-            radb3(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radb3(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 5 {
-            radb5(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radb5(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else {
             radbg(
                 ido,
@@ -3530,74 +3551,66 @@ unsafe fn rfftp_backward(plan: rfftp_plan, c: &mut [f64], fct: f64) -> i32 {
                 l1,
                 p1,
                 p2,
-                (*plan).fct[k].tw.as_ptr(),
-                (*plan).fct[k].tws.as_ptr(),
+                plan.fct[k].tw.as_slice(),
+                plan.fct[k].tws.as_slice(),
             );
         }
-        let mut tmp_: *mut f64 = p1;
+        let tmp_: &mut [f64] = p1;
         p1 = p2;
         p2 = tmp_;
         l1 *= ip;
         k += 1;
     }
-    copy_and_norm(c.as_mut_ptr(), p1, n, fct);
-    free(ch as *mut c_void);
+    copy_and_norm(c, p1, n, fct);
+    //free(ch as *mut c_void);
 
     return 0;
 }
 
-unsafe fn radb4(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radb4(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 4;
     let sqrt2 = 1.41421356237309504880;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check if l1 is actual length of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check if l1 is actual length of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check if l1 is actual length of wa
     let mut k: usize = 0;
     while k < l1 {
-        let mut tr1: f64 = 0.0;
-        let mut tr2: f64 = 0.0;
+        let mut tr1: f64;
+        let mut tr2: f64;
+
+        tr2 = cc[(0) + ido * ((0) + cdim * (k))] + cc[(ido - 1) + ido * ((3) + cdim * (k))];
+        tr1 = cc[(0) + ido * ((0) + cdim * (k))] - cc[(ido - 1) + ido * ((3) + cdim * (k))];
+
+        let tr3: f64 = 2.0 * cc[(ido - 1) + ido * ((1) + cdim * (k))];
+        let tr4: f64 = 2.0 * cc[(0) + ido * ((2) + cdim * (k))];
         {
-            tr2 = tmp_cc[(0) + ido * ((0) + cdim * (k))]
-                + tmp_cc[(ido - 1) + ido * ((3) + cdim * (k))];
-            tr1 = tmp_cc[(0) + ido * ((0) + cdim * (k))]
-                - tmp_cc[(ido - 1) + ido * ((3) + cdim * (k))];
+            ch[(0) + ido * ((k) + l1 * (0))] = tr2 + tr3;
+            ch[(0) + ido * ((k) + l1 * (2))] = tr2 - tr3;
         }
-        let mut tr3: f64 = 2.0 * tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))];
-        let mut tr4: f64 = 2.0 * tmp_cc[(0) + ido * ((2) + cdim * (k))];
-        {
-            tmp_ch[(0) + ido * ((k) + l1 * (0))] = tr2 + tr3;
-            tmp_ch[(0) + ido * ((k) + l1 * (2))] = tr2 - tr3;
-        }
-        {
-            tmp_ch[(0) + ido * ((k) + l1 * (3))] = tr1 + tr4;
-            tmp_ch[(0) + ido * ((k) + l1 * (1))] = tr1 - tr4;
-        }
+
+        ch[(0) + ido * ((k) + l1 * (3))] = tr1 + tr4;
+        ch[(0) + ido * ((k) + l1 * (1))] = tr1 - tr4;
+
         k += 1;
     }
     if (ido & 1) == 0 {
         let mut k: usize = 0;
         while k < l1 {
-            let mut ti1: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
-            let mut tr1: f64 = 0.0;
-            let mut tr2: f64 = 0.0;
-            {
-                ti1 =
-                    tmp_cc[(0) + ido * ((3) + cdim * (k))] + tmp_cc[(0) + ido * ((1) + cdim * (k))];
-                ti2 =
-                    tmp_cc[(0) + ido * ((3) + cdim * (k))] - tmp_cc[(0) + ido * ((1) + cdim * (k))];
-            }
-            {
-                tr2 = tmp_cc[(ido - 1) + ido * ((0) + cdim * (k))]
-                    + tmp_cc[(ido - 1) + ido * ((2) + cdim * (k))];
-                tr1 = tmp_cc[(ido - 1) + ido * ((0) + cdim * (k))]
-                    - tmp_cc[(ido - 1) + ido * ((2) + cdim * (k))];
-            }
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (0))] = tr2 + tr2;
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (1))] = sqrt2 * (tr1 - ti1);
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (2))] = ti2 + ti2;
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (3))] = -sqrt2 * (tr1 + ti1);
+            let mut ti1: f64;
+            let mut ti2: f64;
+            let mut tr1: f64;
+            let mut tr2: f64;
+
+            ti1 = cc[(0) + ido * ((3) + cdim * (k))] + cc[(0) + ido * ((1) + cdim * (k))];
+            ti2 = cc[(0) + ido * ((3) + cdim * (k))] - cc[(0) + ido * ((1) + cdim * (k))];
+
+            tr2 =
+                cc[(ido - 1) + ido * ((0) + cdim * (k))] + cc[(ido - 1) + ido * ((2) + cdim * (k))];
+            tr1 =
+                cc[(ido - 1) + ido * ((0) + cdim * (k))] - cc[(ido - 1) + ido * ((2) + cdim * (k))];
+
+            ch[(ido - 1) + ido * ((k) + l1 * (0))] = tr2 + tr2;
+            ch[(ido - 1) + ido * ((k) + l1 * (1))] = sqrt2 * (tr1 - ti1);
+            ch[(ido - 1) + ido * ((k) + l1 * (2))] = ti2 + ti2;
+            ch[(ido - 1) + ido * ((k) + l1 * (3))] = -sqrt2 * (tr1 + ti1);
             k += 1;
         }
     }
@@ -3608,106 +3621,83 @@ unsafe fn radb4(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
     while k < l1 {
         let mut i: usize = 2;
         while i < ido {
-            let mut ci2: f64 = 0.0;
-            let mut ci3: f64 = 0.0;
-            let mut ci4: f64 = 0.0;
-            let mut cr2: f64 = 0.0;
-            let mut cr3: f64 = 0.0;
-            let mut cr4: f64 = 0.0;
-            let mut ti1: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
-            let mut ti3: f64 = 0.0;
-            let mut ti4: f64 = 0.0;
-            let mut tr1: f64 = 0.0;
-            let mut tr2: f64 = 0.0;
-            let mut tr3: f64 = 0.0;
-            let mut tr4: f64 = 0.0;
+            let mut ci2: f64;
+            let mut ci3: f64;
+            let mut ci4: f64;
+            let mut cr2: f64;
+            let mut cr3: f64;
+            let mut cr4: f64;
+            let mut ti1: f64;
+            let mut ti2: f64;
+            let mut ti3: f64;
+            let mut ti4: f64;
+            let mut tr1: f64;
+            let mut tr2: f64;
+            let mut tr3: f64;
+            let mut tr4: f64;
             let ic: usize = ido - i;
-            {
-                tr2 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))]
-                    + tmp_cc[(ic - 1) + ido * ((3) + cdim * (k))];
-                tr1 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((3) + cdim * (k))];
-            }
-            {
-                ti1 = tmp_cc[(i) + ido * ((0) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((3) + cdim * (k))];
-                ti2 = tmp_cc[(i) + ido * ((0) + cdim * (k))]
-                    - tmp_cc[(ic) + ido * ((3) + cdim * (k))];
-            }
-            {
-                tr4 = tmp_cc[(i) + ido * ((2) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-                ti3 = tmp_cc[(i) + ido * ((2) + cdim * (k))]
-                    - tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-            }
-            {
-                tr3 = tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                    + tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-                ti4 = tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-            }
-            {
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (0))] = tr2 + tr3;
-                cr3 = tr2 - tr3;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (0))] = ti2 + ti3;
-                ci3 = ti2 - ti3;
-            }
-            {
-                cr4 = tr1 + tr4;
-                cr2 = tr1 - tr4;
-            }
-            {
-                ci2 = ti1 + ti4;
-                ci4 = ti1 - ti4;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * ci2
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * cr2;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * cr2
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * ci2;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * ci3
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * cr3;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * cr3
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * ci3;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (3))] = tmp_wa[(i - 2) + (2) * (ido - 1)] * ci4
-                    + tmp_wa[(i - 1) + (2) * (ido - 1)] * cr4;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (3))] = tmp_wa[(i - 2) + (2) * (ido - 1)] * cr4
-                    - tmp_wa[(i - 1) + (2) * (ido - 1)] * ci4;
-            }
+
+            tr2 = cc[(i - 1) + ido * ((0) + cdim * (k))] + cc[(ic - 1) + ido * ((3) + cdim * (k))];
+            tr1 = cc[(i - 1) + ido * ((0) + cdim * (k))] - cc[(ic - 1) + ido * ((3) + cdim * (k))];
+
+            ti1 = cc[(i) + ido * ((0) + cdim * (k))] + cc[(ic) + ido * ((3) + cdim * (k))];
+            ti2 = cc[(i) + ido * ((0) + cdim * (k))] - cc[(ic) + ido * ((3) + cdim * (k))];
+
+            tr4 = cc[(i) + ido * ((2) + cdim * (k))] + cc[(ic) + ido * ((1) + cdim * (k))];
+            ti3 = cc[(i) + ido * ((2) + cdim * (k))] - cc[(ic) + ido * ((1) + cdim * (k))];
+
+            tr3 = cc[(i - 1) + ido * ((2) + cdim * (k))] + cc[(ic - 1) + ido * ((1) + cdim * (k))];
+            ti4 = cc[(i - 1) + ido * ((2) + cdim * (k))] - cc[(ic - 1) + ido * ((1) + cdim * (k))];
+
+            ch[(i - 1) + ido * ((k) + l1 * (0))] = tr2 + tr3;
+            cr3 = tr2 - tr3;
+
+            ch[(i) + ido * ((k) + l1 * (0))] = ti2 + ti3;
+            ci3 = ti2 - ti3;
+
+            cr4 = tr1 + tr4;
+            cr2 = tr1 - tr4;
+
+            ci2 = ti1 + ti4;
+            ci4 = ti1 - ti4;
+
+            ch[(i) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * ci2 + wa[(i - 1) + (0) * (ido - 1)] * cr2;
+            ch[(i - 1) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * cr2 - wa[(i - 1) + (0) * (ido - 1)] * ci2;
+
+            ch[(i) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * ci3 + wa[(i - 1) + (1) * (ido - 1)] * cr3;
+            ch[(i - 1) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * cr3 - wa[(i - 1) + (1) * (ido - 1)] * ci3;
+
+            ch[(i) + ido * ((k) + l1 * (3))] =
+                wa[(i - 2) + (2) * (ido - 1)] * ci4 + wa[(i - 1) + (2) * (ido - 1)] * cr4;
+            ch[(i - 1) + ido * ((k) + l1 * (3))] =
+                wa[(i - 2) + (2) * (ido - 1)] * cr4 - wa[(i - 1) + (2) * (ido - 1)] * ci4;
+
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radb2(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radb2(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 2;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual length of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual length of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual length of wa
     let mut k: usize = 0;
     while k < l1 {
-        tmp_ch[(0) + ido * ((k) + l1 * (0))] =
-            tmp_cc[(0) + ido * ((0) + cdim * (k))] + tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))];
-        tmp_ch[(0) + ido * ((k) + l1 * (1))] =
-            tmp_cc[(0) + ido * ((0) + cdim * (k))] - tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))];
+        ch[(0) + ido * ((k) + l1 * (0))] =
+            cc[(0) + ido * ((0) + cdim * (k))] + cc[(ido - 1) + ido * ((1) + cdim * (k))];
+        ch[(0) + ido * ((k) + l1 * (1))] =
+            cc[(0) + ido * ((0) + cdim * (k))] - cc[(ido - 1) + ido * ((1) + cdim * (k))];
         k += 1;
     }
     if (ido & 1) == 0 {
         let mut k: usize = 0;
         while k < l1 {
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (0))] =
-                2.0 * tmp_cc[(ido - 1) + ido * ((0) + cdim * (k))];
-            tmp_ch[(ido - 1) + ido * ((k) + l1 * (1))] =
-                -2.0 * tmp_cc[(0) + ido * ((1) + cdim * (k))];
+            ch[(ido - 1) + ido * ((k) + l1 * (0))] = 2.0 * cc[(ido - 1) + ido * ((0) + cdim * (k))];
+            ch[(ido - 1) + ido * ((k) + l1 * (1))] = -2.0 * cc[(0) + ido * ((1) + cdim * (k))];
             k += 1;
         }
     }
@@ -3719,52 +3709,43 @@ unsafe fn radb2(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut i: usize = 2;
         while i < ido {
             let ic = ido - i;
-            let mut ti2: f64 = 0.0;
-            let mut tr2: f64 = 0.0;
-            tr2;
-            {
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (0))] = tmp_cc
-                    [(i - 1) + ido * ((0) + cdim * (k))]
-                    + tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-                tr2 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-            }
-            {
-                ti2 = tmp_cc[(i) + ido * ((0) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-                tmp_ch[(i) + ido * ((k) + l1 * (0))] = tmp_cc[(i) + ido * ((0) + cdim * (k))]
-                    - tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * ti2
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * tr2;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * tr2
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * ti2;
-            }
+            let mut ti2: f64;
+            let mut tr2: f64;
+
+            ch[(i - 1) + ido * ((k) + l1 * (0))] =
+                cc[(i - 1) + ido * ((0) + cdim * (k))] + cc[(ic - 1) + ido * ((1) + cdim * (k))];
+            tr2 = cc[(i - 1) + ido * ((0) + cdim * (k))] - cc[(ic - 1) + ido * ((1) + cdim * (k))];
+
+            ti2 = cc[(i) + ido * ((0) + cdim * (k))] + cc[(ic) + ido * ((1) + cdim * (k))];
+            ch[(i) + ido * ((k) + l1 * (0))] =
+                cc[(i) + ido * ((0) + cdim * (k))] - cc[(ic) + ido * ((1) + cdim * (k))];
+
+            ch[(i) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * ti2 + wa[(i - 1) + (0) * (ido - 1)] * tr2;
+            ch[(i - 1) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * tr2 - wa[(i - 1) + (0) * (ido - 1)] * ti2;
+
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radb3(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radb3(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim = 3;
     let taur: f64 = -0.5;
     let taui: f64 = 0.86602540378443864676;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual length of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual length of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual length of wa
     let mut k: usize = 0;
     while k < l1 {
-        let tr2: f64 = 2.0 * tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))];
-        let cr2: f64 = tmp_cc[(0) + ido * ((0) + cdim * (k))] + taur * tr2;
-        tmp_ch[(0) + ido * ((k) + l1 * (0))] = tmp_cc[(0) + ido * ((0) + cdim * (k))] + tr2;
-        let ci3: f64 = 2.0 * taui * tmp_cc[(0) + ido * ((2) + cdim * (k))];
-        {
-            tmp_ch[(0) + ido * ((k) + l1 * (2))] = cr2 + ci3;
-            tmp_ch[(0) + ido * ((k) + l1 * (1))] = cr2 - ci3;
-        };
+        let tr2: f64 = 2.0 * cc[(ido - 1) + ido * ((1) + cdim * (k))];
+        let cr2: f64 = cc[(0) + ido * ((0) + cdim * (k))] + taur * tr2;
+        ch[(0) + ido * ((k) + l1 * (0))] = cc[(0) + ido * ((0) + cdim * (k))] + tr2;
+        let ci3: f64 = 2.0 * taui * cc[(0) + ido * ((2) + cdim * (k))];
+
+        ch[(0) + ido * ((k) + l1 * (2))] = cr2 + ci3;
+        ch[(0) + ido * ((k) + l1 * (1))] = cr2 - ci3;
+
         k += 1;
     }
     if ido == 1 {
@@ -3775,87 +3756,75 @@ unsafe fn radb3(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut i: usize = 2;
         while i < ido {
             let ic = ido - i;
-            let tr2: f64 = tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                + tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-            let ti2: f64 =
-                tmp_cc[(i) + ido * ((2) + cdim * (k))] - tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-            let mut cr2: f64 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))] + taur * tr2;
-            let mut ci2: f64 = tmp_cc[(i) + ido * ((0) + cdim * (k))] + taur * ti2;
-            tmp_ch[(i - 1) + ido * ((k) + l1 * (0))] =
-                tmp_cc[(i - 1) + ido * ((0) + cdim * (k))] + tr2;
-            tmp_ch[(i) + ido * ((k) + l1 * (0))] = tmp_cc[(i) + ido * ((0) + cdim * (k))] + ti2;
+            let tr2: f64 =
+                cc[(i - 1) + ido * ((2) + cdim * (k))] + cc[(ic - 1) + ido * ((1) + cdim * (k))];
+            let ti2: f64 = cc[(i) + ido * ((2) + cdim * (k))] - cc[(ic) + ido * ((1) + cdim * (k))];
+            let cr2: f64 = cc[(i - 1) + ido * ((0) + cdim * (k))] + taur * tr2;
+            let ci2: f64 = cc[(i) + ido * ((0) + cdim * (k))] + taur * ti2;
+            ch[(i - 1) + ido * ((k) + l1 * (0))] = cc[(i - 1) + ido * ((0) + cdim * (k))] + tr2;
+            ch[(i) + ido * ((k) + l1 * (0))] = cc[(i) + ido * ((0) + cdim * (k))] + ti2;
             let cr3: f64 = taui
-                * (tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))]);
-            let ci3: f64 = taui
-                * (tmp_cc[(i) + ido * ((2) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((1) + cdim * (k))]);
-            let mut di2: f64 = 0.0;
-            let mut di3: f64 = 0.0;
-            let mut dr2: f64 = 0.0;
-            let mut dr3: f64 = 0.0;
-            {
-                dr3 = cr2 + ci3;
-                dr2 = cr2 - ci3;
-            }
-            {
-                di2 = ci2 + cr3;
-                di3 = ci2 - cr3;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * di2
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * dr2;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * dr2
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * di2;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * di3
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * dr3;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * dr3
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * di3;
-            }
+                * (cc[(i - 1) + ido * ((2) + cdim * (k))]
+                    - cc[(ic - 1) + ido * ((1) + cdim * (k))]);
+            let ci3: f64 =
+                taui * (cc[(i) + ido * ((2) + cdim * (k))] + cc[(ic) + ido * ((1) + cdim * (k))]);
+            let mut di2: f64;
+            let mut di3: f64;
+            let mut dr2: f64;
+            let mut dr3: f64;
+
+            dr3 = cr2 + ci3;
+            dr2 = cr2 - ci3;
+
+            di2 = ci2 + cr3;
+            di3 = ci2 - cr3;
+
+            ch[(i) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * di2 + wa[(i - 1) + (0) * (ido - 1)] * dr2;
+            ch[(i - 1) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * dr2 - wa[(i - 1) + (0) * (ido - 1)] * di2;
+
+            ch[(i) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * di3 + wa[(i - 1) + (1) * (ido - 1)] * dr3;
+            ch[(i - 1) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * dr3 - wa[(i - 1) + (1) * (ido - 1)] * di3;
+
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radb5(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radb5(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 5;
     let tr11: f64 = 0.3090169943749474241;
     let ti11: f64 = 0.95105651629515357212;
     let tr12: f64 = -0.8090169943749474241;
     let ti12: f64 = 0.58778525229247312917;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual length of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual length of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual length of wa
-
     let mut k: usize = 0;
     while k < l1 {
-        let ti5 = tmp_cc[(0) + ido * ((2) + cdim * (k))] + tmp_cc[(0) + ido * ((2) + cdim * (k))];
-        let ti4 = tmp_cc[(0) + ido * ((4) + cdim * (k))] + tmp_cc[(0) + ido * ((4) + cdim * (k))];
-        let tr2 = tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))]
-            + tmp_cc[(ido - 1) + ido * ((1) + cdim * (k))];
-        let tr3 = tmp_cc[(ido - 1) + ido * ((3) + cdim * (k))]
-            + tmp_cc[(ido - 1) + ido * ((3) + cdim * (k))];
-        tmp_ch[(0) + ido * ((k) + l1 * (0))] = tmp_cc[(0) + ido * ((0) + cdim * (k))] + tr2 + tr3;
-        let cr2 = tmp_cc[(0) + ido * ((0) + cdim * (k))] + tr11 * tr2 + tr12 * tr3;
-        let cr3 = tmp_cc[(0) + ido * ((0) + cdim * (k))] + tr12 * tr2 + tr11 * tr3;
-        let mut ci4: f64 = 0.0;
-        let mut ci5: f64 = 0.0;
-        {
-            ci5 = ti5 * ti11 + ti4 * ti12;
-            ci4 = ti5 * ti12 - ti4 * ti11;
-        }
-        {
-            tmp_ch[(0) + ido * ((k) + l1 * (4))] = cr2 + ci5;
-            tmp_ch[(0) + ido * ((k) + l1 * (1))] = cr2 - ci5;
-        }
-        {
-            tmp_ch[(0) + ido * ((k) + l1 * (3))] = cr3 + ci4;
-            tmp_ch[(0) + ido * ((k) + l1 * (2))] = cr3 - ci4;
-        }
+        let ti5 = cc[(0) + ido * ((2) + cdim * (k))] + cc[(0) + ido * ((2) + cdim * (k))];
+        let ti4 = cc[(0) + ido * ((4) + cdim * (k))] + cc[(0) + ido * ((4) + cdim * (k))];
+        let tr2 =
+            cc[(ido - 1) + ido * ((1) + cdim * (k))] + cc[(ido - 1) + ido * ((1) + cdim * (k))];
+        let tr3 =
+            cc[(ido - 1) + ido * ((3) + cdim * (k))] + cc[(ido - 1) + ido * ((3) + cdim * (k))];
+        ch[(0) + ido * ((k) + l1 * (0))] = cc[(0) + ido * ((0) + cdim * (k))] + tr2 + tr3;
+        let cr2 = cc[(0) + ido * ((0) + cdim * (k))] + tr11 * tr2 + tr12 * tr3;
+        let cr3 = cc[(0) + ido * ((0) + cdim * (k))] + tr12 * tr2 + tr11 * tr3;
+        let mut ci4: f64;
+        let mut ci5: f64;
+
+        ci5 = ti5 * ti11 + ti4 * ti12;
+        ci4 = ti5 * ti12 - ti4 * ti11;
+
+        ch[(0) + ido * ((k) + l1 * (4))] = cr2 + ci5;
+        ch[(0) + ido * ((k) + l1 * (1))] = cr2 - ci5;
+
+        ch[(0) + ido * ((k) + l1 * (3))] = cr3 + ci4;
+        ch[(0) + ido * ((k) + l1 * (2))] = cr3 - ci4;
+
         k += 1;
     }
     if ido == 1 {
@@ -3865,135 +3834,111 @@ unsafe fn radb5(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
     while k < l1 {
         let mut i: usize = 2;
         while i < ido {
-            let mut ic: usize = ido - i;
-            let mut tr2: f64 = 0.0;
-            let mut tr3: f64 = 0.0;
-            let mut tr4: f64 = 0.0;
-            let mut tr5: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
-            let mut ti3: f64 = 0.0;
-            let mut ti4: f64 = 0.0;
-            let mut ti5: f64 = 0.0;
-            {
-                tr2 = tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                    + tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-                tr5 = tmp_cc[(i - 1) + ido * ((2) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((1) + cdim * (k))];
-            }
-            {
-                ti5 = tmp_cc[(i) + ido * ((2) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-                ti2 = tmp_cc[(i) + ido * ((2) + cdim * (k))]
-                    - tmp_cc[(ic) + ido * ((1) + cdim * (k))];
-            }
-            {
-                tr3 = tmp_cc[(i - 1) + ido * ((4) + cdim * (k))]
-                    + tmp_cc[(ic - 1) + ido * ((3) + cdim * (k))];
-                tr4 = tmp_cc[(i - 1) + ido * ((4) + cdim * (k))]
-                    - tmp_cc[(ic - 1) + ido * ((3) + cdim * (k))];
-            }
-            {
-                ti4 = tmp_cc[(i) + ido * ((4) + cdim * (k))]
-                    + tmp_cc[(ic) + ido * ((3) + cdim * (k))];
-                ti3 = tmp_cc[(i) + ido * ((4) + cdim * (k))]
-                    - tmp_cc[(ic) + ido * ((3) + cdim * (k))];
-            }
-            tmp_ch[(i - 1) + ido * ((k) + l1 * (0))] =
-                tmp_cc[(i - 1) + ido * ((0) + cdim * (k))] + tr2 + tr3;
-            tmp_ch[(i) + ido * ((k) + l1 * (0))] =
-                tmp_cc[(i) + ido * ((0) + cdim * (k))] + ti2 + ti3;
-            let cr2: f64 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))] + tr11 * tr2 + tr12 * tr3;
-            let ci2: f64 = tmp_cc[(i) + ido * ((0) + cdim * (k))] + tr11 * ti2 + tr12 * ti3;
-            let cr3: f64 = tmp_cc[(i - 1) + ido * ((0) + cdim * (k))] + tr12 * tr2 + tr11 * tr3;
-            let ci3: f64 = tmp_cc[(i) + ido * ((0) + cdim * (k))] + tr12 * ti2 + tr11 * ti3;
-            let mut ci4: f64 = 0.0;
-            let mut ci5: f64 = 0.0;
-            let mut cr5: f64 = 0.0;
-            let mut cr4: f64 = 0.0;
-            {
-                cr5 = tr5 * ti11 + tr4 * ti12;
-                cr4 = tr5 * ti12 - tr4 * ti11;
-            }
-            {
-                ci5 = ti5 * ti11 + ti4 * ti12;
-                ci4 = ti5 * ti12 - ti4 * ti11;
-            }
-            let mut dr2: f64 = 0.0;
-            let mut dr3: f64 = 0.0;
-            let mut dr4: f64 = 0.0;
-            let mut dr5: f64 = 0.0;
-            let mut di2: f64 = 0.0;
-            let mut di3: f64 = 0.0;
-            let mut di4: f64 = 0.0;
-            let mut di5: f64 = 0.0;
-            {
-                dr4 = cr3 + ci4;
-                dr3 = cr3 - ci4;
-            }
-            {
-                di3 = ci3 + cr4;
-                di4 = ci3 - cr4;
-            }
-            {
-                dr5 = cr2 + ci5;
-                dr2 = cr2 - ci5;
-            }
-            {
-                di2 = ci2 + cr5;
-                di5 = ci2 - cr5;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * di2
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * dr2;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (1))] = tmp_wa[(i - 2) + (0) * (ido - 1)] * dr2
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * di2;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * di3
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * dr3;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (2))] = tmp_wa[(i - 2) + (1) * (ido - 1)] * dr3
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * di3;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (3))] = tmp_wa[(i - 2) + (2) * (ido - 1)] * di4
-                    + tmp_wa[(i - 1) + (2) * (ido - 1)] * dr4;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (3))] = tmp_wa[(i - 2) + (2) * (ido - 1)] * dr4
-                    - tmp_wa[(i - 1) + (2) * (ido - 1)] * di4;
-            }
-            {
-                tmp_ch[(i) + ido * ((k) + l1 * (4))] = tmp_wa[(i - 2) + (3) * (ido - 1)] * di5
-                    + tmp_wa[(i - 1) + (3) * (ido - 1)] * dr5;
-                tmp_ch[(i - 1) + ido * ((k) + l1 * (4))] = tmp_wa[(i - 2) + (3) * (ido - 1)] * dr5
-                    - tmp_wa[(i - 1) + (3) * (ido - 1)] * di5;
-            }
+            let ic: usize = ido - i;
+            let mut tr2: f64;
+            let mut tr3: f64;
+            let mut tr4: f64;
+            let mut tr5: f64;
+            let mut ti2: f64;
+            let mut ti3: f64;
+            let mut ti4: f64;
+            let mut ti5: f64;
+
+            tr2 = cc[(i - 1) + ido * ((2) + cdim * (k))] + cc[(ic - 1) + ido * ((1) + cdim * (k))];
+            tr5 = cc[(i - 1) + ido * ((2) + cdim * (k))] - cc[(ic - 1) + ido * ((1) + cdim * (k))];
+
+            ti5 = cc[(i) + ido * ((2) + cdim * (k))] + cc[(ic) + ido * ((1) + cdim * (k))];
+            ti2 = cc[(i) + ido * ((2) + cdim * (k))] - cc[(ic) + ido * ((1) + cdim * (k))];
+
+            tr3 = cc[(i - 1) + ido * ((4) + cdim * (k))] + cc[(ic - 1) + ido * ((3) + cdim * (k))];
+            tr4 = cc[(i - 1) + ido * ((4) + cdim * (k))] - cc[(ic - 1) + ido * ((3) + cdim * (k))];
+
+            ti4 = cc[(i) + ido * ((4) + cdim * (k))] + cc[(ic) + ido * ((3) + cdim * (k))];
+            ti3 = cc[(i) + ido * ((4) + cdim * (k))] - cc[(ic) + ido * ((3) + cdim * (k))];
+
+            ch[(i - 1) + ido * ((k) + l1 * (0))] =
+                cc[(i - 1) + ido * ((0) + cdim * (k))] + tr2 + tr3;
+            ch[(i) + ido * ((k) + l1 * (0))] = cc[(i) + ido * ((0) + cdim * (k))] + ti2 + ti3;
+            let cr2: f64 = cc[(i - 1) + ido * ((0) + cdim * (k))] + tr11 * tr2 + tr12 * tr3;
+            let ci2: f64 = cc[(i) + ido * ((0) + cdim * (k))] + tr11 * ti2 + tr12 * ti3;
+            let cr3: f64 = cc[(i - 1) + ido * ((0) + cdim * (k))] + tr12 * tr2 + tr11 * tr3;
+            let ci3: f64 = cc[(i) + ido * ((0) + cdim * (k))] + tr12 * ti2 + tr11 * ti3;
+            let mut ci4: f64;
+            let mut ci5: f64;
+            let mut cr5: f64;
+            let mut cr4: f64;
+
+            cr5 = tr5 * ti11 + tr4 * ti12;
+            cr4 = tr5 * ti12 - tr4 * ti11;
+
+            ci5 = ti5 * ti11 + ti4 * ti12;
+            ci4 = ti5 * ti12 - ti4 * ti11;
+
+            let mut dr2: f64;
+            let mut dr3: f64;
+            let mut dr4: f64;
+            let mut dr5: f64;
+            let mut di2: f64;
+            let mut di3: f64;
+            let mut di4: f64;
+            let mut di5: f64;
+
+            dr4 = cr3 + ci4;
+            dr3 = cr3 - ci4;
+
+            di3 = ci3 + cr4;
+            di4 = ci3 - cr4;
+
+            dr5 = cr2 + ci5;
+            dr2 = cr2 - ci5;
+
+            di2 = ci2 + cr5;
+            di5 = ci2 - cr5;
+
+            ch[(i) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * di2 + wa[(i - 1) + (0) * (ido - 1)] * dr2;
+            ch[(i - 1) + ido * ((k) + l1 * (1))] =
+                wa[(i - 2) + (0) * (ido - 1)] * dr2 - wa[(i - 1) + (0) * (ido - 1)] * di2;
+
+            ch[(i) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * di3 + wa[(i - 1) + (1) * (ido - 1)] * dr3;
+            ch[(i - 1) + ido * ((k) + l1 * (2))] =
+                wa[(i - 2) + (1) * (ido - 1)] * dr3 - wa[(i - 1) + (1) * (ido - 1)] * di3;
+
+            ch[(i) + ido * ((k) + l1 * (3))] =
+                wa[(i - 2) + (2) * (ido - 1)] * di4 + wa[(i - 1) + (2) * (ido - 1)] * dr4;
+            ch[(i - 1) + ido * ((k) + l1 * (3))] =
+                wa[(i - 2) + (2) * (ido - 1)] * dr4 - wa[(i - 1) + (2) * (ido - 1)] * di4;
+
+            ch[(i) + ido * ((k) + l1 * (4))] =
+                wa[(i - 2) + (3) * (ido - 1)] * di5 + wa[(i - 1) + (3) * (ido - 1)] * dr5;
+            ch[(i - 1) + ido * ((k) + l1 * (4))] =
+                wa[(i - 2) + (3) * (ido - 1)] * dr5 - wa[(i - 1) + (3) * (ido - 1)] * di5;
+
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radbg(
+fn radbg(
     ido: usize,
     ip: usize,
     l1: usize,
-    cc: *mut f64,
-    ch: *mut f64,
-    wa: *const f64,
-    csarr: *const f64,
+    cc: &mut [f64],
+    ch: &mut [f64],
+    wa: &[f64],
+    csarr: &[f64],
 ) {
     let cdim: usize = ip;
     let ipph: usize = (ip + 1) / 2;
     let idl1: usize = ido * l1;
 
-    let tmp_cc = from_raw_parts_mut(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual size of wa
-    let tmp_csarr = from_raw_parts(csarr, l1); //fixme: check actual size of csarr
     let mut k: usize = 0;
     while k < l1 {
         let mut i: usize = 0;
         while i < ido {
-            tmp_ch[(i) + ido * ((k) + l1 * (0))] = tmp_cc[(i) + ido * ((0) + cdim * (k))];
+            ch[(i) + ido * ((k) + l1 * (0))] = cc[(i) + ido * ((0) + cdim * (k))];
             i += 1;
         }
         k += 1;
@@ -4004,10 +3949,8 @@ unsafe fn radbg(
         let j2: usize = 2 * j - 1;
         let mut k: usize = 0;
         while k < l1 {
-            tmp_ch[(0) + ido * ((k) + l1 * (j))] =
-                2.0 * tmp_cc[(ido - 1) + ido * ((j2) + cdim * (k))];
-            tmp_ch[(0) + ido * ((k) + l1 * (jc))] =
-                2.0 * tmp_cc[(0) + ido * ((j2 + 1) + cdim * (k))];
+            ch[(0) + ido * ((k) + l1 * (j))] = 2.0 * cc[(ido - 1) + ido * ((j2) + cdim * (k))];
+            ch[(0) + ido * ((k) + l1 * (jc))] = 2.0 * cc[(0) + ido * ((j2 + 1) + cdim * (k))];
             k += 1;
         }
         j += 1;
@@ -4024,18 +3967,16 @@ unsafe fn radbg(
                 let mut i: usize = 1;
                 let mut ic: usize = ido - i - 2;
                 while i <= ido - 2 {
-                    tmp_ch[(i) + ido * ((k) + l1 * (j))] = tmp_cc
-                        [(i) + ido * ((j2 + 1) + cdim * (k))]
-                        + tmp_cc[(ic) + ido * ((j2) + cdim * (k))];
-                    tmp_ch[(i) + ido * ((k) + l1 * (jc))] = tmp_cc
-                        [(i) + ido * ((j2 + 1) + cdim * (k))]
-                        - tmp_cc[(ic) + ido * ((j2) + cdim * (k))];
-                    tmp_ch[(i + 1) + ido * ((k) + l1 * (j))] = tmp_cc
+                    ch[(i) + ido * ((k) + l1 * (j))] = cc[(i) + ido * ((j2 + 1) + cdim * (k))]
+                        + cc[(ic) + ido * ((j2) + cdim * (k))];
+                    ch[(i) + ido * ((k) + l1 * (jc))] = cc[(i) + ido * ((j2 + 1) + cdim * (k))]
+                        - cc[(ic) + ido * ((j2) + cdim * (k))];
+                    ch[(i + 1) + ido * ((k) + l1 * (j))] = cc
                         [(i + 1) + ido * ((j2 + 1) + cdim * (k))]
-                        - tmp_cc[(ic + 1) + ido * ((j2) + cdim * (k))];
-                    tmp_ch[(i + 1) + ido * ((k) + l1 * (jc))] = tmp_cc
+                        - cc[(ic + 1) + ido * ((j2) + cdim * (k))];
+                    ch[(i + 1) + ido * ((k) + l1 * (jc))] = cc
                         [(i + 1) + ido * ((j2 + 1) + cdim * (k))]
-                        + tmp_cc[(ic + 1) + ido * ((j2) + cdim * (k))];
+                        + cc[(ic + 1) + ido * ((j2) + cdim * (k))];
                     i += 2;
                     ic -= 2;
                 }
@@ -4050,11 +3991,11 @@ unsafe fn radbg(
     while l < ipph {
         let mut ik: usize = 0;
         while ik < idl1 {
-            tmp_cc[(ik) + idl1 * (l)] = tmp_ch[(ik) + idl1 * (0)]
-                + tmp_csarr[2 * l] * tmp_ch[(ik) + idl1 * (1)]
-                + tmp_csarr[4 * l] * tmp_ch[(ik) + idl1 * (2)];
-            tmp_cc[(ik) + idl1 * (lc)] = tmp_csarr[2 * l + 1] * tmp_ch[(ik) + idl1 * (ip - 1)]
-                + tmp_csarr[4 * l + 1] * tmp_ch[(ik) + idl1 * (ip - 2)];
+            cc[(ik) + idl1 * (l)] = ch[(ik) + idl1 * (0)]
+                + csarr[2 * l] * ch[(ik) + idl1 * (1)]
+                + csarr[4 * l] * ch[(ik) + idl1 * (2)];
+            cc[(ik) + idl1 * (lc)] = csarr[2 * l + 1] * ch[(ik) + idl1 * (ip - 1)]
+                + csarr[4 * l + 1] * ch[(ik) + idl1 * (ip - 2)];
             ik += 1;
         }
         let mut iang: usize = 2 * l;
@@ -4065,36 +4006,36 @@ unsafe fn radbg(
             if iang > ip {
                 iang -= ip;
             }
-            let ar1 = tmp_csarr[2 * iang];
-            let ai1 = tmp_csarr[2 * iang + 1];
+            let ar1 = csarr[2 * iang];
+            let ai1 = csarr[2 * iang + 1];
             iang += l;
             if iang > ip {
                 iang -= ip;
             }
-            let ar2 = tmp_csarr[2 * iang];
-            let ai2 = tmp_csarr[2 * iang + 1];
+            let ar2 = csarr[2 * iang];
+            let ai2 = csarr[2 * iang + 1];
             iang += l;
             if iang > ip {
                 iang -= ip;
             }
-            let ar3 = tmp_csarr[2 * iang];
-            let ai3 = tmp_csarr[2 * iang + 1];
+            let ar3 = csarr[2 * iang];
+            let ai3 = csarr[2 * iang + 1];
             iang += l;
             if iang > ip {
                 iang -= ip;
             }
-            let ar4 = tmp_csarr[2 * iang];
-            let ai4 = tmp_csarr[2 * iang + 1];
+            let ar4 = csarr[2 * iang];
+            let ai4 = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_cc[(ik) + idl1 * (l)] += ar1 * tmp_ch[(ik) + idl1 * (j)]
-                    + ar2 * tmp_ch[(ik) + idl1 * (j + 1)]
-                    + ar3 * tmp_ch[(ik) + idl1 * (j + 2)]
-                    + ar4 * tmp_ch[(ik) + idl1 * (j + 3)];
-                tmp_cc[(ik) + idl1 * (lc)] += ai1 * tmp_ch[(ik) + idl1 * (jc)]
-                    + ai2 * tmp_ch[(ik) + idl1 * (jc - 1)]
-                    + ai3 * tmp_ch[(ik) + idl1 * (jc - 2)]
-                    + ai4 * tmp_ch[(ik) + idl1 * (jc - 3)];
+                cc[(ik) + idl1 * (l)] += ar1 * ch[(ik) + idl1 * (j)]
+                    + ar2 * ch[(ik) + idl1 * (j + 1)]
+                    + ar3 * ch[(ik) + idl1 * (j + 2)]
+                    + ar4 * ch[(ik) + idl1 * (j + 3)];
+                cc[(ik) + idl1 * (lc)] += ai1 * ch[(ik) + idl1 * (jc)]
+                    + ai2 * ch[(ik) + idl1 * (jc - 1)]
+                    + ai3 * ch[(ik) + idl1 * (jc - 2)]
+                    + ai4 * ch[(ik) + idl1 * (jc - 3)];
                 ik += 1;
             }
             j += 4;
@@ -4105,20 +4046,20 @@ unsafe fn radbg(
             if iang > ip {
                 iang -= ip;
             }
-            let ar1 = tmp_csarr[2 * iang];
-            let ai1 = tmp_csarr[2 * iang + 1];
+            let ar1 = csarr[2 * iang];
+            let ai1 = csarr[2 * iang + 1];
             iang += l;
             if iang > ip {
                 iang -= ip;
             }
-            let ar2 = tmp_csarr[2 * iang];
-            let ai2 = tmp_csarr[2 * iang + 1];
+            let ar2 = csarr[2 * iang];
+            let ai2 = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_cc[(ik) + idl1 * (l)] +=
-                    ar1 * tmp_ch[(ik) + idl1 * (j)] + ar2 * tmp_ch[(ik) + idl1 * (j + 1)];
-                tmp_cc[(ik) + idl1 * (lc)] +=
-                    ai1 * tmp_ch[(ik) + idl1 * (jc)] + ai2 * tmp_ch[(ik) + idl1 * (jc - 1)];
+                cc[(ik) + idl1 * (l)] +=
+                    ar1 * ch[(ik) + idl1 * (j)] + ar2 * ch[(ik) + idl1 * (j + 1)];
+                cc[(ik) + idl1 * (lc)] +=
+                    ai1 * ch[(ik) + idl1 * (jc)] + ai2 * ch[(ik) + idl1 * (jc - 1)];
                 ik += 1;
             }
             j += 2;
@@ -4129,12 +4070,12 @@ unsafe fn radbg(
             if iang > ip {
                 iang -= ip;
             }
-            let war = tmp_csarr[2 * iang];
-            let wai = tmp_csarr[2 * iang + 1];
+            let war = csarr[2 * iang];
+            let wai = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_cc[(ik) + idl1 * (l)] += war * tmp_ch[(ik) + idl1 * (j)];
-                tmp_cc[(ik) + idl1 * (lc)] += wai * tmp_ch[(ik) + idl1 * (jc)];
+                cc[(ik) + idl1 * (l)] += war * ch[(ik) + idl1 * (j)];
+                cc[(ik) + idl1 * (lc)] += wai * ch[(ik) + idl1 * (jc)];
                 ik += 1;
             }
             j += 1;
@@ -4147,7 +4088,7 @@ unsafe fn radbg(
     while j < ipph {
         let mut ik: usize = 0;
         while ik < idl1 {
-            tmp_ch[(ik) + idl1 * (0)] += tmp_ch[(ik) + idl1 * (j)];
+            ch[(ik) + idl1 * (0)] += ch[(ik) + idl1 * (j)];
             ik += 1;
         }
         j += 1;
@@ -4157,10 +4098,10 @@ unsafe fn radbg(
     while j < ipph {
         let mut k: usize = 0;
         while k < l1 {
-            tmp_ch[(0) + ido * ((k) + l1 * (j))] =
-                tmp_cc[(0) + ido * ((k) + l1 * (j))] - tmp_cc[(0) + ido * ((k) + l1 * (jc))];
-            tmp_ch[(0) + ido * ((k) + l1 * (jc))] =
-                tmp_cc[(0) + ido * ((k) + l1 * (j))] + tmp_cc[(0) + ido * ((k) + l1 * (jc))];
+            ch[(0) + ido * ((k) + l1 * (j))] =
+                cc[(0) + ido * ((k) + l1 * (j))] - cc[(0) + ido * ((k) + l1 * (jc))];
+            ch[(0) + ido * ((k) + l1 * (jc))] =
+                cc[(0) + ido * ((k) + l1 * (j))] + cc[(0) + ido * ((k) + l1 * (jc))];
             k += 1;
         }
         j += 1;
@@ -4177,15 +4118,14 @@ unsafe fn radbg(
         while k < l1 {
             let mut i: usize = 1;
             while i <= ido - 2 {
-                tmp_ch[(i) + ido * ((k) + l1 * (j))] = tmp_cc[(i) + ido * ((k) + l1 * (j))]
-                    - tmp_cc[(i + 1) + ido * ((k) + l1 * (jc))];
-                tmp_ch[(i) + ido * ((k) + l1 * (jc))] = tmp_cc[(i) + ido * ((k) + l1 * (j))]
-                    + tmp_cc[(i + 1) + ido * ((k) + l1 * (jc))];
-                tmp_ch[(i + 1) + ido * ((k) + l1 * (j))] = tmp_cc[(i + 1) + ido * ((k) + l1 * (j))]
-                    + tmp_cc[(i) + ido * ((k) + l1 * (jc))];
-                tmp_ch[(i + 1) + ido * ((k) + l1 * (jc))] = tmp_cc
-                    [(i + 1) + ido * ((k) + l1 * (j))]
-                    - tmp_cc[(i) + ido * ((k) + l1 * (jc))];
+                ch[(i) + ido * ((k) + l1 * (j))] =
+                    cc[(i) + ido * ((k) + l1 * (j))] - cc[(i + 1) + ido * ((k) + l1 * (jc))];
+                ch[(i) + ido * ((k) + l1 * (jc))] =
+                    cc[(i) + ido * ((k) + l1 * (j))] + cc[(i + 1) + ido * ((k) + l1 * (jc))];
+                ch[(i + 1) + ido * ((k) + l1 * (j))] =
+                    cc[(i + 1) + ido * ((k) + l1 * (j))] + cc[(i) + ido * ((k) + l1 * (jc))];
+                ch[(i + 1) + ido * ((k) + l1 * (jc))] =
+                    cc[(i + 1) + ido * ((k) + l1 * (j))] - cc[(i) + ido * ((k) + l1 * (jc))];
                 i += 2;
             }
             k += 1;
@@ -4202,11 +4142,10 @@ unsafe fn radbg(
             let mut idij: usize = is;
             let mut i: usize = 1;
             while i <= ido - 2 {
-                let t1 = tmp_ch[(i) + ido * ((k) + l1 * (j))];
-                let t2 = tmp_ch[(i + 1) + ido * ((k) + l1 * (j))];
-                tmp_ch[(i) + ido * ((k) + l1 * (j))] = tmp_wa[idij] * t1 - tmp_wa[idij + 1] * t2;
-                tmp_ch[(i + 1) + ido * ((k) + l1 * (j))] =
-                    tmp_wa[idij] * t2 + tmp_wa[idij + 1] * t1;
+                let t1 = ch[(i) + ido * ((k) + l1 * (j))];
+                let t2 = ch[(i + 1) + ido * ((k) + l1 * (j))];
+                ch[(i) + ido * ((k) + l1 * (j))] = wa[idij] * t1 - wa[idij + 1] * t2;
+                ch[(i + 1) + ido * ((k) + l1 * (j))] = wa[idij] * t2 + wa[idij + 1] * t1;
                 idij += 2;
                 i += 2;
             }
@@ -4216,78 +4155,91 @@ unsafe fn radbg(
     }
 }
 
-unsafe fn rfftblue_backward(plan: fftblue_plan, c: &mut [f64], fct: f64) -> i32 {
+fn rfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
     let n: usize = (*plan).n;
-    let tmp: *mut f64 = (malloc((2 * n) * size_of::<f64>())) as *mut f64;
-    if tmp.is_null() {
+    //let tmp: *mut f64 = (malloc((2 * n) * size_of::<f64>())) as *mut f64;
+    let mut tmp: Vec<f64> = Vec::with_capacity(2 * n);
+    /*if tmp.is_null() {
         return -1;
-    }
-    *tmp.offset(0) = c[0];
-    *tmp.offset(1) = 0.0;
-    memcpy(
+    }*/
+    tmp.insert(0, c[0]);
+    tmp.insert(1, 0.0);
+    tmp[2..(n - 1)].clone_from_slice(&c[1..]);
+    /*memcpy(
         tmp.offset(2) as *mut c_void,
         c.as_ptr().offset(1) as *const c_void,
         (n - 1) * size_of::<f64>(),
-    );
+    );*/
     if (n & 1) == 0 {
-        *tmp.offset((n as isize) + 1) = 0.0;
+        tmp.insert(n + 1, 0.0);
     }
     let mut m: usize = 2;
     while m < n {
-        *tmp.offset(2 * (n as isize) - (m as isize)) = *tmp.offset(m as isize);
-        *tmp.offset(2 * (n as isize) - (m as isize) + 1) = *tmp.offset((m as isize) + 1) * (-1.0);
+        tmp.insert(2 * n - m, tmp[m]);
+        tmp.insert(2 * n - m + 1, tmp[m + 1] * (-1.0));
         m += 2;
     }
-    if fftblue_fft(plan, from_raw_parts_mut(tmp, n * 2), 1, fct) != 0 {
-        free(tmp as *mut c_void);
+    if fftblue_fft(&mut *plan, tmp.as_mut_slice(), 1, fct) != 0 {
+        //free(tmp as *mut c_void);
         return -1;
     }
     m = 0;
     while m < n {
-        c[m] = *tmp.offset(2 * (m as isize));
+        c[m] = tmp[2 * m];
         m += 1;
     }
-    free(tmp as *mut c_void);
+    //free(tmp as *mut c_void);
     return 0;
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn rfft_forward(plan: rfft_plan, c: *mut f64, fct: f64) -> i32 {
     if (*plan).packplan.is_null() == false {
-        return rfftp_forward((*plan).packplan, c, fct);
+        let tmp_packplan = (*plan).packplan;
+        return rfftp_forward(
+            &mut *tmp_packplan,
+            from_raw_parts_mut(c, (*tmp_packplan).length),
+            fct,
+        );
     } else {
-        return rfftblue_forward((*plan).blueplan, c, fct);
+        let tmp_blueplan = (*plan).blueplan;
+        return rfftblue_forward(
+            &mut *tmp_blueplan,
+            from_raw_parts_mut(c, (*tmp_blueplan).n * 2),
+            fct,
+        );
     }
 }
 
-unsafe fn rfftp_forward(plan: rfftp_plan, c: *mut f64, fct: f64) -> i32 {
-    if (*plan).length == 1 {
+fn rfftp_forward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    if plan.length == 1 {
         return 0;
     }
-    let n: usize = (*plan).length;
+    let n: usize = plan.length;
     let mut l1: usize = n;
-    let nf = (*plan).nfct;
-    let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
-    if ch.is_null() {
+    let nf = plan.nfct;
+    //let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
+    let mut ch: Vec<f64> = Vec::with_capacity(n);
+    /*if ch.is_null() {
         return -1;
-    }
-    let mut p1: *mut f64 = c;
-    let mut p2: *mut f64 = ch;
+    }*/
+    let mut p1: &mut [f64] = c;
+    let mut p2: &mut [f64] = ch.as_mut_slice();
 
     let mut k1: usize = 0;
     while k1 < nf {
-        let mut k: usize = nf - k1 - 1;
-        let mut ip: usize = (*plan).fct[k].fct;
-        let mut ido = n / l1;
+        let k: usize = nf - k1 - 1;
+        let ip: usize = plan.fct[k].fct;
+        let ido = n / l1;
         l1 /= ip;
         if ip == 4 {
-            radf4(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radf4(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 2 {
-            radf2(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radf2(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 3 {
-            radf3(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radf3(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else if ip == 5 {
-            radf5(ido, l1, p1, p2, (*plan).fct[k].tw.as_ptr());
+            radf5(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else {
             radfg(
                 ido,
@@ -4295,45 +4247,43 @@ unsafe fn rfftp_forward(plan: rfftp_plan, c: *mut f64, fct: f64) -> i32 {
                 l1,
                 p1,
                 p2,
-                (*plan).fct[k].tw.as_ptr(),
-                (*plan).fct[k].tws.as_ptr(),
+                plan.fct[k].tw.as_slice(),
+                plan.fct[k].tws.as_slice(),
             );
-            let mut tmp_: *mut f64 = p1;
+            let tmp_ = p1;
             p1 = p2;
             p2 = tmp_;
         }
-        let mut tmp_: *mut f64 = p1;
+        let tmp_ = p1;
         p1 = p2;
         p2 = tmp_;
         k1 += 1;
     }
     copy_and_norm(c, p1, n, fct);
-    free(ch as *mut c_void);
+    //free(ch as *mut c_void);
     return 0;
 }
-unsafe fn radf4(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+
+fn radf4(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 4;
     let hsqt2: f64 = 0.70710678118654752440;
     let mut k: usize = 0;
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of cc
-    let tmp_wa = from_raw_parts(wa, l1); //fixme:check actual size of wa
     while k < l1 {
-        let mut tr1: f64 = 0.0;
-        let mut tr2: f64 = 0.0;
+        let mut tr1: f64;
+        let mut tr2: f64;
         {
-            tr1 = tmp_cc[(0) + ido * ((k) + l1 * (3))] + tmp_cc[(0) + ido * ((k) + l1 * (1))];
-            tmp_ch[(0) + ido * ((2) + cdim * (k))] =
-                tmp_cc[(0) + ido * ((k) + l1 * (3))] - tmp_cc[(0) + ido * ((k) + l1 * (1))];
+            tr1 = cc[(0) + ido * ((k) + l1 * (3))] + cc[(0) + ido * ((k) + l1 * (1))];
+            ch[(0) + ido * ((2) + cdim * (k))] =
+                cc[(0) + ido * ((k) + l1 * (3))] - cc[(0) + ido * ((k) + l1 * (1))];
         }
         {
-            tr2 = tmp_cc[(0) + ido * ((k) + l1 * (0))] + tmp_cc[(0) + ido * ((k) + l1 * (2))];
-            tmp_ch[(ido - 1) + ido * ((1) + cdim * (k))] =
-                tmp_cc[(0) + ido * ((k) + l1 * (0))] - tmp_cc[(0) + ido * ((k) + l1 * (2))];
+            tr2 = cc[(0) + ido * ((k) + l1 * (0))] + cc[(0) + ido * ((k) + l1 * (2))];
+            ch[(ido - 1) + ido * ((1) + cdim * (k))] =
+                cc[(0) + ido * ((k) + l1 * (0))] - cc[(0) + ido * ((k) + l1 * (2))];
         }
         {
-            tmp_ch[(0) + ido * ((0) + cdim * (k))] = tr2 + tr1;
-            tmp_ch[(ido - 1) + ido * ((3) + cdim * (k))] = tr2 - tr1;
+            ch[(0) + ido * ((0) + cdim * (k))] = tr2 + tr1;
+            ch[(ido - 1) + ido * ((3) + cdim * (k))] = tr2 - tr1;
         }
         k += 1;
     }
@@ -4341,22 +4291,18 @@ unsafe fn radf4(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut k: usize = 0;
         while k < l1 {
             let ti1: f64 = -hsqt2
-                * (tmp_cc[(ido - 1) + ido * ((k) + l1 * (1))]
-                    + tmp_cc[(ido - 1) + ido * ((k) + l1 * (3))]);
+                * (cc[(ido - 1) + ido * ((k) + l1 * (1))] + cc[(ido - 1) + ido * ((k) + l1 * (3))]);
             let tr1: f64 = hsqt2
-                * (tmp_cc[(ido - 1) + ido * ((k) + l1 * (1))]
-                    - tmp_cc[(ido - 1) + ido * ((k) + l1 * (3))]);
+                * (cc[(ido - 1) + ido * ((k) + l1 * (1))] - cc[(ido - 1) + ido * ((k) + l1 * (3))]);
             {
-                tmp_ch[(ido - 1) + ido * ((0) + cdim * (k))] =
-                    tmp_cc[(ido - 1) + ido * ((k) + l1 * (0))] + tr1;
-                tmp_ch[(ido - 1) + ido * ((2) + cdim * (k))] =
-                    tmp_cc[(ido - 1) + ido * ((k) + l1 * (0))] - tr1;
+                ch[(ido - 1) + ido * ((0) + cdim * (k))] =
+                    cc[(ido - 1) + ido * ((k) + l1 * (0))] + tr1;
+                ch[(ido - 1) + ido * ((2) + cdim * (k))] =
+                    cc[(ido - 1) + ido * ((k) + l1 * (0))] - tr1;
             }
             {
-                tmp_ch[(0) + ido * ((3) + cdim * (k))] =
-                    ti1 + tmp_cc[(ido - 1) + ido * ((k) + l1 * (2))];
-                tmp_ch[(0) + ido * ((1) + cdim * (k))] =
-                    ti1 - tmp_cc[(ido - 1) + ido * ((k) + l1 * (2))];
+                ch[(0) + ido * ((3) + cdim * (k))] = ti1 + cc[(ido - 1) + ido * ((k) + l1 * (2))];
+                ch[(0) + ido * ((1) + cdim * (k))] = ti1 - cc[(ido - 1) + ido * ((k) + l1 * (2))];
             }
             k += 1;
         }
@@ -4369,96 +4315,69 @@ unsafe fn radf4(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut i: usize = 2;
         while i < ido {
             let ic: usize = ido - i;
-            let mut ci2: f64 = 0.0;
-            let mut ci3: f64 = 0.0;
-            let mut ci4: f64 = 0.0;
-            let mut cr2: f64 = 0.0;
-            let mut cr3: f64 = 0.0;
-            let mut cr4: f64 = 0.0;
-            let mut ti1: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
-            let mut ti3: f64 = 0.0;
-            let mut ti4: f64 = 0.0;
-            let mut tr1: f64 = 0.0;
-            let mut tr2: f64 = 0.0;
-            let mut tr3: f64 = 0.0;
-            let mut tr4: f64 = 0.0;
-            {
-                cr2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))]
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))];
-                ci2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))]
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))];
-            }
-            {
-                cr3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))]
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))];
-                ci3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))]
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))];
-            }
-            {
-                cr4 = tmp_wa[(i - 2) + (2) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (3))]
-                    + tmp_wa[(i - 1) + (2) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (3))];
-                ci4 = tmp_wa[(i - 2) + (2) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (3))]
-                    - tmp_wa[(i - 1) + (2) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (3))];
-            }
-            {
+            let mut ci2: f64;
+            let mut ci3: f64;
+            let mut ci4: f64;
+            let mut cr2: f64;
+            let mut cr3: f64;
+            let mut cr4: f64;
+            let mut ti1: f64;
+            let mut ti2: f64;
+            let mut ti3: f64;
+            let mut ti4: f64;
+            let mut tr1: f64;
+            let mut tr2: f64;
+            let mut tr3: f64;
+            let mut tr4: f64;
+                cr2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))]
+                    + wa[(i - 1) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))];
+                ci2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))]
+                    - wa[(i - 1) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))];
+                cr3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))]
+                    + wa[(i - 1) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))];
+                ci3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))]
+                    - wa[(i - 1) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))];
+                cr4 = wa[(i - 2) + (2) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (3))]
+                    + wa[(i - 1) + (2) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (3))];
+                ci4 = wa[(i - 2) + (2) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (3))]
+                    - wa[(i - 1) + (2) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (3))];
                 tr1 = cr4 + cr2;
                 tr4 = cr4 - cr2;
-            }
-            {
                 ti1 = ci2 + ci4;
                 ti4 = ci2 - ci4;
-            }
-            {
-                tr2 = tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + cr3;
-                tr3 = tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] - cr3;
-            }
-            {
-                ti2 = tmp_cc[(i) + ido * ((k) + l1 * (0))] + ci3;
-                ti3 = tmp_cc[(i) + ido * ((k) + l1 * (0))] - ci3;
-            }
-            {
-                tmp_ch[(i - 1) + ido * ((0) + cdim * (k))] = tr2 + tr1;
-                tmp_ch[(ic - 1) + ido * ((3) + cdim * (k))] = tr2 - tr1;
-            }
-            {
-                tmp_ch[(i) + ido * ((0) + cdim * (k))] = ti1 + ti2;
-                tmp_ch[(ic) + ido * ((3) + cdim * (k))] = ti1 - ti2;
-            }
-            {
-                tmp_ch[(i - 1) + ido * ((2) + cdim * (k))] = tr3 + ti4;
-                tmp_ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr3 - ti4;
-            }
-            {
-                tmp_ch[(i) + ido * ((2) + cdim * (k))] = tr4 + ti3;
-                tmp_ch[(ic) + ido * ((1) + cdim * (k))] = tr4 - ti3;
-            }
+                tr2 = cc[(i - 1) + ido * ((k) + l1 * (0))] + cr3;
+                tr3 = cc[(i - 1) + ido * ((k) + l1 * (0))] - cr3;
+                ti2 = cc[(i) + ido * ((k) + l1 * (0))] + ci3;
+                ti3 = cc[(i) + ido * ((k) + l1 * (0))] - ci3;
+                ch[(i - 1) + ido * ((0) + cdim * (k))] = tr2 + tr1;
+                ch[(ic - 1) + ido * ((3) + cdim * (k))] = tr2 - tr1;
+                ch[(i) + ido * ((0) + cdim * (k))] = ti1 + ti2;
+                ch[(ic) + ido * ((3) + cdim * (k))] = ti1 - ti2;
+                ch[(i - 1) + ido * ((2) + cdim * (k))] = tr3 + ti4;
+                ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr3 - ti4;
+                ch[(i) + ido * ((2) + cdim * (k))] = tr4 + ti3;
+                ch[(ic) + ido * ((1) + cdim * (k))] = tr4 - ti3;
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radf2(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radf2(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 2;
-
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual size of cc
     let mut k: usize = 0;
     while k < l1 {
-        tmp_ch[(0) + ido * ((0) + cdim * (k))] =
-            tmp_cc[(0) + ido * ((k) + l1 * (0))] + tmp_cc[(0) + ido * ((k) + l1 * (1))];
-        tmp_ch[(ido - 1) + ido * ((1) + cdim * (k))] =
-            tmp_cc[(0) + ido * ((k) + l1 * (0))] - tmp_cc[(0) + ido * ((k) + l1 * (1))];
+        ch[(0) + ido * ((0) + cdim * (k))] =
+            cc[(0) + ido * ((k) + l1 * (0))] + cc[(0) + ido * ((k) + l1 * (1))];
+        ch[(ido - 1) + ido * ((1) + cdim * (k))] =
+            cc[(0) + ido * ((k) + l1 * (0))] - cc[(0) + ido * ((k) + l1 * (1))];
         k += 1;
     }
     if (ido & 1) == 0 {
         let mut k: usize = 0;
         while k < l1 {
-            tmp_ch[(0) + ido * ((1) + cdim * (k))] = -tmp_cc[(ido - 1) + ido * ((k) + l1 * (1))];
-            tmp_ch[(ido - 1) + ido * ((0) + cdim * (k))] =
-                tmp_cc[(ido - 1) + ido * ((k) + l1 * (0))];
+            ch[(0) + ido * ((1) + cdim * (k))] = -cc[(ido - 1) + ido * ((k) + l1 * (1))];
+            ch[(ido - 1) + ido * ((0) + cdim * (k))] = cc[(ido - 1) + ido * ((k) + l1 * (0))];
             k += 1;
         }
     }
@@ -4470,24 +4389,22 @@ unsafe fn radf2(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut i: usize = 2;
         while i < ido {
             let ic: usize = ido - i;
-            let mut tr2: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
+            let mut tr2: f64;
+            let mut ti2: f64;
             {
-                tr2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))]
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))];
-                ti2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))]
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))];
+                tr2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))]
+                    + wa[(i - 1) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))];
+                ti2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))]
+                    - wa[(i - 1) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))];
             }
             {
-                tmp_ch[(i - 1) + ido * ((0) + cdim * (k))] =
-                    tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + tr2;
-                tmp_ch[(ic - 1) + ido * ((1) + cdim * (k))] =
-                    tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] - tr2;
+                ch[(i - 1) + ido * ((0) + cdim * (k))] = cc[(i - 1) + ido * ((k) + l1 * (0))] + tr2;
+                ch[(ic - 1) + ido * ((1) + cdim * (k))] =
+                    cc[(i - 1) + ido * ((k) + l1 * (0))] - tr2;
             }
             {
-                tmp_ch[(i) + ido * ((0) + cdim * (k))] = ti2 + tmp_cc[(i) + ido * ((k) + l1 * (0))];
-                tmp_ch[(ic) + ido * ((1) + cdim * (k))] =
-                    ti2 - tmp_cc[(i) + ido * ((k) + l1 * (0))];
+                ch[(i) + ido * ((0) + cdim * (k))] = ti2 + cc[(i) + ido * ((k) + l1 * (0))];
+                ch[(ic) + ido * ((1) + cdim * (k))] = ti2 - cc[(i) + ido * ((k) + l1 * (0))];
             }
             i += 2;
         }
@@ -4495,23 +4412,18 @@ unsafe fn radf2(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
     }
 }
 
-unsafe fn radf3(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radf3(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 3;
     let taur: f64 = -0.5;
     let taui: f64 = 0.86602540378443864676;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual size of cc
-
     let mut k: usize = 0;
     while k < l1 {
-        let cr2: f64 = tmp_cc[(0) + ido * ((k) + l1 * (1))] + tmp_cc[(0) + ido * ((k) + l1 * (2))];
-        tmp_ch[(0) + ido * ((0) + cdim * (k))] = tmp_cc[(0) + ido * ((k) + l1 * (0))] + cr2;
-        tmp_ch[(0) + ido * ((2) + cdim * (k))] =
-            taui * (tmp_cc[(0) + ido * ((k) + l1 * (2))] - tmp_cc[(0) + ido * ((k) + l1 * (1))]);
-        tmp_ch[(ido - 1) + ido * ((1) + cdim * (k))] =
-            tmp_cc[(0) + ido * ((k) + l1 * (0))] + taur * cr2;
+        let cr2: f64 = cc[(0) + ido * ((k) + l1 * (1))] + cc[(0) + ido * ((k) + l1 * (2))];
+        ch[(0) + ido * ((0) + cdim * (k))] = cc[(0) + ido * ((k) + l1 * (0))] + cr2;
+        ch[(0) + ido * ((2) + cdim * (k))] =
+            taui * (cc[(0) + ido * ((k) + l1 * (2))] - cc[(0) + ido * ((k) + l1 * (1))]);
+        ch[(ido - 1) + ido * ((1) + cdim * (k))] = cc[(0) + ido * ((k) + l1 * (0))] + taur * cr2;
         k += 1;
     }
     if ido == 1 {
@@ -4522,38 +4434,37 @@ unsafe fn radf3(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
         let mut i: usize = 2;
         while i < ido {
             let ic: usize = ido - i;
-            let mut di2: f64 = 0.0;
-            let mut di3: f64 = 0.0;
-            let mut dr2: f64 = 0.0;
-            let mut dr3: f64 = 0.0;
+            let mut di2: f64;
+            let mut di3: f64;
+            let mut dr2: f64;
+            let mut dr3: f64;
             {
-                dr2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))]
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))];
-                di2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))]
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))];
+                dr2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))]
+                    + wa[(i - 1) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))];
+                di2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))]
+                    - wa[(i - 1) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))];
             }
             {
-                dr3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))]
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))];
-                di3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))]
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))];
+                dr3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))]
+                    + wa[(i - 1) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))];
+                di3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))]
+                    - wa[(i - 1) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))];
             }
             let cr2: f64 = dr2 + dr3;
             let ci2: f64 = di2 + di3;
-            tmp_ch[(i - 1) + ido * ((0) + cdim * (k))] =
-                tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + cr2;
-            tmp_ch[(i) + ido * ((0) + cdim * (k))] = tmp_cc[(i) + ido * ((k) + l1 * (0))] + ci2;
-            let tr2: f64 = tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + taur * cr2;
-            let ti2: f64 = tmp_cc[(i) + ido * ((k) + l1 * (0))] + taur * ci2;
+            ch[(i - 1) + ido * ((0) + cdim * (k))] = cc[(i - 1) + ido * ((k) + l1 * (0))] + cr2;
+            ch[(i) + ido * ((0) + cdim * (k))] = cc[(i) + ido * ((k) + l1 * (0))] + ci2;
+            let tr2: f64 = cc[(i - 1) + ido * ((k) + l1 * (0))] + taur * cr2;
+            let ti2: f64 = cc[(i) + ido * ((k) + l1 * (0))] + taur * ci2;
             let tr3: f64 = taui * (di2 - di3);
             let ti3: f64 = taui * (dr3 - dr2);
             {
-                tmp_ch[(i - 1) + ido * ((2) + cdim * (k))] = tr2 + tr3;
-                tmp_ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr2 - tr3;
+                ch[(i - 1) + ido * ((2) + cdim * (k))] = tr2 + tr3;
+                ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr2 - tr3;
             }
             {
-                tmp_ch[(i) + ido * ((2) + cdim * (k))] = ti3 + ti2;
-                tmp_ch[(ic) + ido * ((1) + cdim * (k))] = ti3 - ti2;
+                ch[(i) + ido * ((2) + cdim * (k))] = ti3 + ti2;
+                ch[(ic) + ido * ((1) + cdim * (k))] = ti3 - ti2;
             }
             i += 2;
         }
@@ -4561,37 +4472,30 @@ unsafe fn radf3(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
     }
 }
 
-unsafe fn radf5(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const f64) {
+fn radf5(ido: usize, l1: usize, cc: &[f64], ch: &mut [f64], wa: &[f64]) {
     let cdim: usize = 5;
     let tr11: f64 = 0.3090169943749474241;
     let ti11: f64 = 0.95105651629515357212;
     let tr12: f64 = -0.8090169943749474241;
     let ti12: f64 = 0.58778525229247312917;
 
-    let tmp_cc = from_raw_parts(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual size of cc
     let mut k: usize = 0;
     while k < l1 {
-        let mut cr2: f64 = 0.0;
-        let mut cr3: f64 = 0.0;
-        let mut ci4: f64 = 0.0;
-        let mut ci5: f64 = 0.0;
-        {
-            cr2 = tmp_cc[(0) + ido * ((k) + l1 * (4))] + tmp_cc[(0) + ido * ((k) + l1 * (1))];
-            ci5 = tmp_cc[(0) + ido * ((k) + l1 * (4))] - tmp_cc[(0) + ido * ((k) + l1 * (1))];
-        }
-        {
-            cr3 = tmp_cc[(0) + ido * ((k) + l1 * (3))] + tmp_cc[(0) + ido * ((k) + l1 * (2))];
-            ci4 = tmp_cc[(0) + ido * ((k) + l1 * (3))] - tmp_cc[(0) + ido * ((k) + l1 * (2))];
-        }
-        tmp_ch[(0) + ido * ((0) + cdim * (k))] = tmp_cc[(0) + ido * ((k) + l1 * (0))] + cr2 + cr3;
-        tmp_ch[(ido - 1) + ido * ((1) + cdim * (k))] =
-            tmp_cc[(0) + ido * ((k) + l1 * (0))] + tr11 * cr2 + tr12 * cr3;
-        tmp_ch[(0) + ido * ((2) + cdim * (k))] = ti11 * ci5 + ti12 * ci4;
-        tmp_ch[(ido - 1) + ido * ((3) + cdim * (k))] =
-            tmp_cc[(0) + ido * ((k) + l1 * (0))] + tr12 * cr2 + tr11 * cr3;
-        tmp_ch[(0) + ido * ((4) + cdim * (k))] = ti12 * ci5 - ti11 * ci4;
+        let mut cr2: f64;
+        let mut cr3: f64;
+        let mut ci4: f64;
+        let mut ci5: f64;
+            cr2 = cc[(0) + ido * ((k) + l1 * (4))] + cc[(0) + ido * ((k) + l1 * (1))];
+            ci5 = cc[(0) + ido * ((k) + l1 * (4))] - cc[(0) + ido * ((k) + l1 * (1))];
+            cr3 = cc[(0) + ido * ((k) + l1 * (3))] + cc[(0) + ido * ((k) + l1 * (2))];
+            ci4 = cc[(0) + ido * ((k) + l1 * (3))] - cc[(0) + ido * ((k) + l1 * (2))];
+        ch[(0) + ido * ((0) + cdim * (k))] = cc[(0) + ido * ((k) + l1 * (0))] + cr2 + cr3;
+        ch[(ido - 1) + ido * ((1) + cdim * (k))] =
+            cc[(0) + ido * ((k) + l1 * (0))] + tr11 * cr2 + tr12 * cr3;
+        ch[(0) + ido * ((2) + cdim * (k))] = ti11 * ci5 + ti12 * ci4;
+        ch[(ido - 1) + ido * ((3) + cdim * (k))] =
+            cc[(0) + ido * ((k) + l1 * (0))] + tr12 * cr2 + tr11 * cr3;
+        ch[(0) + ido * ((4) + cdim * (k))] = ti12 * ci5 - ti11 * ci4;
         k += 1;
     }
     if ido == 1 {
@@ -4601,126 +4505,108 @@ unsafe fn radf5(ido: usize, l1: usize, cc: *const f64, ch: *mut f64, wa: *const 
     while k < l1 {
         let mut i: usize = 2;
         while i < ido {
-            let mut ci2: f64 = 0.0;
-            let mut di2: f64 = 0.0;
-            let mut ci4: f64 = 0.0;
-            let mut ci5: f64 = 0.0;
-            let mut di3: f64 = 0.0;
-            let mut di4: f64 = 0.0;
-            let mut di5: f64 = 0.0;
-            let mut ci3: f64 = 0.0;
-            let mut cr2: f64 = 0.0;
-            let mut cr3: f64 = 0.0;
-            let mut dr2: f64 = 0.0;
-            let mut dr3: f64 = 0.0;
-            let mut dr4: f64 = 0.0;
-            let mut dr5: f64 = 0.0;
-            let mut cr5: f64 = 0.0;
-            let mut cr4: f64 = 0.0;
-            let mut ti2: f64 = 0.0;
-            let mut ti3: f64 = 0.0;
-            let mut ti5: f64 = 0.0;
-            let mut ti4: f64 = 0.0;
-            let mut tr2: f64 = 0.0;
-            let mut tr3: f64 = 0.0;
-            let mut tr4: f64 = 0.0;
-            let mut tr5: f64 = 0.0;
-            let mut ic: usize = ido - i;
-            {
-                dr2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))]
-                    + tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))];
-                di2 = tmp_wa[(i - 2) + (0) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (1))]
-                    - tmp_wa[(i - 1) + (0) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (1))];
-            }
-            {
-                dr3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))]
-                    + tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))];
-                di3 = tmp_wa[(i - 2) + (1) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (2))]
-                    - tmp_wa[(i - 1) + (1) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (2))];
-            }
-            {
-                dr4 = tmp_wa[(i - 2) + (2) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (3))]
-                    + tmp_wa[(i - 1) + (2) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (3))];
-                di4 = tmp_wa[(i - 2) + (2) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (3))]
-                    - tmp_wa[(i - 1) + (2) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (3))];
-            }
-            {
-                dr5 = tmp_wa[(i - 2) + (3) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (4))]
-                    + tmp_wa[(i - 1) + (3) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (4))];
-                di5 = tmp_wa[(i - 2) + (3) * (ido - 1)] * tmp_cc[(i) + ido * ((k) + l1 * (4))]
-                    - tmp_wa[(i - 1) + (3) * (ido - 1)] * tmp_cc[(i - 1) + ido * ((k) + l1 * (4))];
-            }
-            {
-                cr2 = dr5 + dr2;
-                ci5 = dr5 - dr2;
-            }
-            {
-                ci2 = di2 + di5;
-                cr5 = di2 - di5;
-            }
-            {
-                cr3 = dr4 + dr3;
-                ci4 = dr4 - dr3;
-            }
-            {
-                ci3 = di3 + di4;
-                cr4 = di3 - di4;
-            }
-            tmp_ch[(i - 1) + ido * ((0) + cdim * (k))] =
-                tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + cr2 + cr3;
-            tmp_ch[(i) + ido * ((0) + cdim * (k))] =
-                tmp_cc[(i) + ido * ((k) + l1 * (0))] + ci2 + ci3;
-            tr2 = tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + tr11 * cr2 + tr12 * cr3;
-            ti2 = tmp_cc[(i) + ido * ((k) + l1 * (0))] + tr11 * ci2 + tr12 * ci3;
-            tr3 = tmp_cc[(i - 1) + ido * ((k) + l1 * (0))] + tr12 * cr2 + tr11 * cr3;
-            ti3 = tmp_cc[(i) + ido * ((k) + l1 * (0))] + tr12 * ci2 + tr11 * ci3;
-            {
-                tr5 = cr5 * ti11 + cr4 * ti12;
-                tr4 = cr5 * ti12 - cr4 * ti11;
-            }
-            {
-                ti5 = ci5 * ti11 + ci4 * ti12;
-                ti4 = ci5 * ti12 - ci4 * ti11;
-            }
-            {
-                tmp_ch[(i - 1) + ido * ((2) + cdim * (k))] = tr2 + tr5;
-                tmp_ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr2 - tr5;
-            }
-            {
-                tmp_ch[(i) + ido * ((2) + cdim * (k))] = ti5 + ti2;
-                tmp_ch[(ic) + ido * ((1) + cdim * (k))] = ti5 - ti2;
-            }
-            {
-                tmp_ch[(i - 1) + ido * ((4) + cdim * (k))] = tr3 + tr4;
-                tmp_ch[(ic - 1) + ido * ((3) + cdim * (k))] = tr3 - tr4;
-            }
-            {
-                tmp_ch[(i) + ido * ((4) + cdim * (k))] = ti4 + ti3;
-                tmp_ch[(ic) + ido * ((3) + cdim * (k))] = ti4 - ti3;
-            }
+            let mut ci2: f64;
+            let mut di2: f64;
+            let mut ci4: f64;
+            let mut ci5: f64;
+            let mut di3: f64;
+            let mut di4: f64;
+            let mut di5: f64;
+            let mut ci3: f64;
+            let mut cr2: f64;
+            let mut cr3: f64;
+            let mut dr2: f64;
+            let mut dr3: f64;
+            let mut dr4: f64;
+            let mut dr5: f64;
+            let mut cr5: f64;
+            let mut cr4: f64;
+            let mut ti2: f64;
+            let mut ti3: f64;
+            let mut ti5: f64;
+            let mut ti4: f64;
+            let mut tr2: f64;
+            let mut tr3: f64;
+            let mut tr4: f64;
+            let mut tr5: f64;
+            let ic: usize = ido - i;
+
+            dr2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))]
+                + wa[(i - 1) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))];
+            di2 = wa[(i - 2) + (0) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (1))]
+                - wa[(i - 1) + (0) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (1))];
+
+            dr3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))]
+                + wa[(i - 1) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))];
+            di3 = wa[(i - 2) + (1) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (2))]
+                - wa[(i - 1) + (1) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (2))];
+
+            dr4 = wa[(i - 2) + (2) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (3))]
+                + wa[(i - 1) + (2) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (3))];
+            di4 = wa[(i - 2) + (2) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (3))]
+                - wa[(i - 1) + (2) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (3))];
+
+            dr5 = wa[(i - 2) + (3) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (4))]
+                + wa[(i - 1) + (3) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (4))];
+            di5 = wa[(i - 2) + (3) * (ido - 1)] * cc[(i) + ido * ((k) + l1 * (4))]
+                - wa[(i - 1) + (3) * (ido - 1)] * cc[(i - 1) + ido * ((k) + l1 * (4))];
+
+            cr2 = dr5 + dr2;
+            ci5 = dr5 - dr2;
+
+            ci2 = di2 + di5;
+            cr5 = di2 - di5;
+
+            cr3 = dr4 + dr3;
+            ci4 = dr4 - dr3;
+
+            ci3 = di3 + di4;
+            cr4 = di3 - di4;
+
+            ch[(i - 1) + ido * ((0) + cdim * (k))] =
+                cc[(i - 1) + ido * ((k) + l1 * (0))] + cr2 + cr3;
+            ch[(i) + ido * ((0) + cdim * (k))] = cc[(i) + ido * ((k) + l1 * (0))] + ci2 + ci3;
+            tr2 = cc[(i - 1) + ido * ((k) + l1 * (0))] + tr11 * cr2 + tr12 * cr3;
+            ti2 = cc[(i) + ido * ((k) + l1 * (0))] + tr11 * ci2 + tr12 * ci3;
+            tr3 = cc[(i - 1) + ido * ((k) + l1 * (0))] + tr12 * cr2 + tr11 * cr3;
+            ti3 = cc[(i) + ido * ((k) + l1 * (0))] + tr12 * ci2 + tr11 * ci3;
+
+            tr5 = cr5 * ti11 + cr4 * ti12;
+            tr4 = cr5 * ti12 - cr4 * ti11;
+
+            ti5 = ci5 * ti11 + ci4 * ti12;
+            ti4 = ci5 * ti12 - ci4 * ti11;
+
+            ch[(i - 1) + ido * ((2) + cdim * (k))] = tr2 + tr5;
+            ch[(ic - 1) + ido * ((1) + cdim * (k))] = tr2 - tr5;
+
+            ch[(i) + ido * ((2) + cdim * (k))] = ti5 + ti2;
+            ch[(ic) + ido * ((1) + cdim * (k))] = ti5 - ti2;
+
+            ch[(i - 1) + ido * ((4) + cdim * (k))] = tr3 + tr4;
+            ch[(ic - 1) + ido * ((3) + cdim * (k))] = tr3 - tr4;
+
+            ch[(i) + ido * ((4) + cdim * (k))] = ti4 + ti3;
+            ch[(ic) + ido * ((3) + cdim * (k))] = ti4 - ti3;
+
             i += 2;
         }
         k += 1;
     }
 }
 
-unsafe fn radfg(
+fn radfg(
     ido: usize,
     ip: usize,
     l1: usize,
-    cc: *mut f64,
-    ch: *mut f64,
-    wa: *const f64,
-    csarr: *const f64,
+    cc: &mut [f64],
+    ch: &mut [f64],
+    wa: &[f64],
+    csarr: &[f64],
 ) {
     let cdim: usize = ip;
     let ipph: usize = (ip + 1) / 2;
     let idl1: usize = ido * l1;
-
-    let tmp_cc = from_raw_parts_mut(cc, l1); //fixme: check actual size of cc
-    let tmp_ch = from_raw_parts_mut(ch, l1); //fixme: check actual size of ch
-    let tmp_wa = from_raw_parts(wa, l1); //fixme: check actual size of wa
-    let tmp_csarr = from_raw_parts(csarr, l1); //fixme: check actual size of csarr
 
     if ido > 1 {
         let mut j: usize = 1;
@@ -4734,18 +4620,18 @@ unsafe fn radfg(
                 let mut idij2: usize = is2;
                 let mut i: usize = 1;
                 while i <= ido - 2 {
-                    let t1: f64 = tmp_cc[(i) + ido * ((k) + l1 * (j))];
-                    let t2: f64 = tmp_cc[(i + 1) + ido * ((k) + l1 * (j))];
-                    let t3: f64 = tmp_cc[(i) + ido * ((k) + l1 * (jc))];
-                    let t4: f64 = tmp_cc[(i + 1) + ido * ((k) + l1 * (jc))];
-                    let x1: f64 = tmp_wa[idij] * t1 + tmp_wa[idij + 1] * t2;
-                    let x2: f64 = tmp_wa[idij] * t2 - tmp_wa[idij + 1] * t1;
-                    let x3: f64 = tmp_wa[idij2] * t3 + tmp_wa[idij2 + 1] * t4;
-                    let x4: f64 = tmp_wa[idij2] * t4 - tmp_wa[idij2 + 1] * t3;
-                    tmp_cc[(i) + ido * ((k) + l1 * (j))] = x1 + x3;
-                    tmp_cc[(i) + ido * ((k) + l1 * (jc))] = x2 - x4;
-                    tmp_cc[(i + 1) + ido * ((k) + l1 * (j))] = x2 + x4;
-                    tmp_cc[(i + 1) + ido * ((k) + l1 * (jc))] = x3 - x1;
+                    let t1: f64 = cc[(i) + ido * ((k) + l1 * (j))];
+                    let t2: f64 = cc[(i + 1) + ido * ((k) + l1 * (j))];
+                    let t3: f64 = cc[(i) + ido * ((k) + l1 * (jc))];
+                    let t4: f64 = cc[(i + 1) + ido * ((k) + l1 * (jc))];
+                    let x1: f64 = wa[idij] * t1 + wa[idij + 1] * t2;
+                    let x2: f64 = wa[idij] * t2 - wa[idij + 1] * t1;
+                    let x3: f64 = wa[idij2] * t3 + wa[idij2 + 1] * t4;
+                    let x4: f64 = wa[idij2] * t4 - wa[idij2 + 1] * t3;
+                    cc[(i) + ido * ((k) + l1 * (j))] = x1 + x3;
+                    cc[(i) + ido * ((k) + l1 * (jc))] = x2 - x4;
+                    cc[(i + 1) + ido * ((k) + l1 * (j))] = x2 + x4;
+                    cc[(i + 1) + ido * ((k) + l1 * (jc))] = x3 - x1;
                     idij += 2;
                     idij2 += 2;
                     i += 2;
@@ -4762,10 +4648,10 @@ unsafe fn radfg(
     while j < ipph {
         let mut k: usize = 0;
         while k < l1 {
-            let t1: f64 = tmp_cc[(0) + ido * ((k) + l1 * (j))];
-            let t2 = tmp_cc[(0) + ido * ((k) + l1 * (jc))];
-            tmp_cc[(0) + ido * ((k) + l1 * (j))] = t1 + t2;
-            tmp_cc[(0) + ido * ((k) + l1 * (jc))] = t2 - t1;
+            let t1: f64 = cc[(0) + ido * ((k) + l1 * (j))];
+            let t2 = cc[(0) + ido * ((k) + l1 * (jc))];
+            cc[(0) + ido * ((k) + l1 * (j))] = t1 + t2;
+            cc[(0) + ido * ((k) + l1 * (jc))] = t2 - t1;
             k += 1;
         }
         j += 1;
@@ -4777,11 +4663,11 @@ unsafe fn radfg(
     while l < ipph {
         let mut ik: usize = 0;
         while ik < idl1 {
-            tmp_ch[(ik) + idl1 * (l)] = tmp_cc[(ik) + idl1 * (0)]
-                + tmp_csarr[2 * l] * tmp_cc[(ik) + idl1 * (1)]
-                + tmp_csarr[4 * l] * tmp_cc[(ik) + idl1 * (2)];
-            tmp_ch[(ik) + idl1 * (lc)] = tmp_csarr[2 * l + 1] * tmp_cc[(ik) + idl1 * (ip - 1)]
-                + tmp_csarr[4 * l + 1] * tmp_cc[(ik) + idl1 * (ip - 2)];
+            ch[(ik) + idl1 * (l)] = cc[(ik) + idl1 * (0)]
+                + csarr[2 * l] * cc[(ik) + idl1 * (1)]
+                + csarr[4 * l] * cc[(ik) + idl1 * (2)];
+            ch[(ik) + idl1 * (lc)] = csarr[2 * l + 1] * cc[(ik) + idl1 * (ip - 1)]
+                + csarr[4 * l + 1] * cc[(ik) + idl1 * (ip - 2)];
             ik += 1;
         }
         let mut iang: usize = 2 * l;
@@ -4792,36 +4678,36 @@ unsafe fn radfg(
             if iang >= ip {
                 iang -= ip;
             }
-            let ar1: f64 = tmp_csarr[2 * iang];
-            let ai1: f64 = tmp_csarr[2 * iang + 1];
+            let ar1: f64 = csarr[2 * iang];
+            let ai1: f64 = csarr[2 * iang + 1];
             iang += l;
             if iang >= ip {
                 iang -= ip;
             }
-            let ar2: f64 = tmp_csarr[2 * iang];
-            let ai2: f64 = tmp_csarr[2 * iang + 1];
+            let ar2: f64 = csarr[2 * iang];
+            let ai2: f64 = csarr[2 * iang + 1];
             iang += l;
             if iang >= ip {
                 iang -= ip;
             }
-            let ar3: f64 = tmp_csarr[2 * iang];
-            let ai3: f64 = tmp_csarr[2 * iang + 1];
+            let ar3: f64 = csarr[2 * iang];
+            let ai3: f64 = csarr[2 * iang + 1];
             iang += l;
             if iang >= ip {
                 iang -= ip;
             }
-            let ar4: f64 = tmp_csarr[2 * iang];
-            let ai4: f64 = tmp_csarr[2 * iang + 1];
+            let ar4: f64 = csarr[2 * iang];
+            let ai4: f64 = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_ch[(ik) + idl1 * (l)] += ar1 * tmp_cc[(ik) + idl1 * (j)]
-                    + ar2 * tmp_cc[(ik) + idl1 * (j + 1)]
-                    + ar3 * tmp_cc[(ik) + idl1 * (j + 2)]
-                    + ar4 * tmp_cc[(ik) + idl1 * (j + 3)];
-                tmp_ch[(ik) + idl1 * (lc)] += ai1 * tmp_cc[(ik) + idl1 * (jc)]
-                    + ai2 * tmp_cc[(ik) + idl1 * (jc - 1)]
-                    + ai3 * tmp_cc[(ik) + idl1 * (jc - 2)]
-                    + ai4 * tmp_cc[(ik) + idl1 * (jc - 3)];
+                ch[(ik) + idl1 * (l)] += ar1 * cc[(ik) + idl1 * (j)]
+                    + ar2 * cc[(ik) + idl1 * (j + 1)]
+                    + ar3 * cc[(ik) + idl1 * (j + 2)]
+                    + ar4 * cc[(ik) + idl1 * (j + 3)];
+                ch[(ik) + idl1 * (lc)] += ai1 * cc[(ik) + idl1 * (jc)]
+                    + ai2 * cc[(ik) + idl1 * (jc - 1)]
+                    + ai3 * cc[(ik) + idl1 * (jc - 2)]
+                    + ai4 * cc[(ik) + idl1 * (jc - 3)];
                 ik += 1;
             }
             j += 4;
@@ -4832,20 +4718,20 @@ unsafe fn radfg(
             if iang >= ip {
                 iang -= ip;
             }
-            let ar1: f64 = tmp_csarr[2 * iang];
-            let ai1: f64 = tmp_csarr[2 * iang + 1];
+            let ar1: f64 = csarr[2 * iang];
+            let ai1: f64 = csarr[2 * iang + 1];
             iang += l;
             if iang >= ip {
                 iang -= ip;
             }
-            let ar2: f64 = tmp_csarr[2 * iang];
-            let ai2: f64 = tmp_csarr[2 * iang + 1];
+            let ar2: f64 = csarr[2 * iang];
+            let ai2: f64 = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_ch[(ik) + idl1 * (l)] +=
-                    ar1 * tmp_cc[(ik) + idl1 * (j)] + ar2 * tmp_cc[(ik) + idl1 * (j + 1)];
-                tmp_ch[(ik) + idl1 * (lc)] +=
-                    ai1 * tmp_cc[(ik) + idl1 * (jc)] + ai2 * tmp_cc[(ik) + idl1 * (jc - 1)];
+                ch[(ik) + idl1 * (l)] +=
+                    ar1 * cc[(ik) + idl1 * (j)] + ar2 * cc[(ik) + idl1 * (j + 1)];
+                ch[(ik) + idl1 * (lc)] +=
+                    ai1 * cc[(ik) + idl1 * (jc)] + ai2 * cc[(ik) + idl1 * (jc - 1)];
                 ik += 1;
             }
             j += 2;
@@ -4856,12 +4742,12 @@ unsafe fn radfg(
             if iang >= ip {
                 iang -= ip;
             }
-            let ar: f64 = tmp_csarr[2 * iang];
-            let ai: f64 = tmp_csarr[2 * iang + 1];
+            let ar: f64 = csarr[2 * iang];
+            let ai: f64 = csarr[2 * iang + 1];
             let mut ik: usize = 0;
             while ik < idl1 {
-                tmp_ch[(ik) + idl1 * (l)] += ar * tmp_cc[(ik) + idl1 * (j)];
-                tmp_ch[(ik) + idl1 * (lc)] += ai * tmp_cc[(ik) + idl1 * (jc)];
+                ch[(ik) + idl1 * (l)] += ar * cc[(ik) + idl1 * (j)];
+                ch[(ik) + idl1 * (lc)] += ai * cc[(ik) + idl1 * (jc)];
                 ik += 1;
             }
             j += 1;
@@ -4872,14 +4758,14 @@ unsafe fn radfg(
     }
     let mut ik: usize = 0;
     while ik < idl1 {
-        tmp_ch[(ik) + idl1 * (0)] = tmp_cc[(ik) + idl1 * (0)];
+        ch[(ik) + idl1 * (0)] = cc[(ik) + idl1 * (0)];
         ik += 1;
     }
     let mut j: usize = 1;
     while j < ipph {
         let mut ik: usize = 0;
         while ik < idl1 {
-            tmp_ch[(ik) + idl1 * (0)] += tmp_cc[(ik) + idl1 * (j)];
+            ch[(ik) + idl1 * (0)] += cc[(ik) + idl1 * (j)];
             ik += 1;
         }
         j += 1;
@@ -4889,7 +4775,7 @@ unsafe fn radfg(
     while k < l1 {
         let mut i: usize = 0;
         while i < ido {
-            tmp_cc[(i) + ido * ((0) + cdim * (k))] = tmp_ch[(i) + ido * ((k) + l1 * (0))];
+            cc[(i) + ido * ((0) + cdim * (k))] = ch[(i) + ido * ((k) + l1 * (0))];
             i += 1;
         }
         k += 1;
@@ -4901,8 +4787,8 @@ unsafe fn radfg(
         let j2: usize = 2 * j - 1;
         let mut k: usize = 0;
         while k < l1 {
-            tmp_cc[(ido - 1) + ido * ((j2) + cdim * (k))] = tmp_ch[(0) + ido * ((k) + l1 * (j))];
-            tmp_cc[(0) + ido * ((j2 + 1) + cdim * (k))] = tmp_ch[(0) + ido * ((k) + l1 * (jc))];
+            cc[(ido - 1) + ido * ((j2) + cdim * (k))] = ch[(0) + ido * ((k) + l1 * (j))];
+            cc[(0) + ido * ((j2 + 1) + cdim * (k))] = ch[(0) + ido * ((k) + l1 * (jc))];
             k += 1;
         }
         j += 1;
@@ -4922,16 +4808,14 @@ unsafe fn radfg(
             let mut i: usize = 1;
             let mut ic: usize = ido - i - 2;
             while i <= ido - 2 {
-                tmp_cc[(i) + ido * ((j2 + 1) + cdim * (k))] =
-                    tmp_ch[(i) + ido * ((k) + l1 * (j))] + tmp_ch[(i) + ido * ((k) + l1 * (jc))];
-                tmp_cc[(ic) + ido * ((j2) + cdim * (k))] =
-                    tmp_ch[(i) + ido * ((k) + l1 * (j))] - tmp_ch[(i) + ido * ((k) + l1 * (jc))];
-                tmp_cc[(i + 1) + ido * ((j2 + 1) + cdim * (k))] = tmp_ch
-                    [(i + 1) + ido * ((k) + l1 * (j))]
-                    + tmp_ch[(i + 1) + ido * ((k) + l1 * (jc))];
-                tmp_cc[(ic + 1) + ido * ((j2) + cdim * (k))] = tmp_ch
-                    [(i + 1) + ido * ((k) + l1 * (jc))]
-                    - tmp_ch[(i + 1) + ido * ((k) + l1 * (j))];
+                cc[(i) + ido * ((j2 + 1) + cdim * (k))] =
+                    ch[(i) + ido * ((k) + l1 * (j))] + ch[(i) + ido * ((k) + l1 * (jc))];
+                cc[(ic) + ido * ((j2) + cdim * (k))] =
+                    ch[(i) + ido * ((k) + l1 * (j))] - ch[(i) + ido * ((k) + l1 * (jc))];
+                cc[(i + 1) + ido * ((j2 + 1) + cdim * (k))] =
+                    ch[(i + 1) + ido * ((k) + l1 * (j))] + ch[(i + 1) + ido * ((k) + l1 * (jc))];
+                cc[(ic + 1) + ido * ((j2) + cdim * (k))] =
+                    ch[(i + 1) + ido * ((k) + l1 * (jc))] - ch[(i + 1) + ido * ((k) + l1 * (j))];
                 i += 2;
                 ic -= 2;
             }
@@ -4942,62 +4826,64 @@ unsafe fn radfg(
     }
 }
 
-unsafe fn rfftblue_forward(plan: fftblue_plan, c: *mut f64, fct: f64) -> i32 {
-    let n: usize = (*plan).n;
-    let tmp_len = (2 * n) * size_of::<f64>();
-    let tmp: *mut f64 = (malloc(tmp_len)) as *mut f64;
-    if tmp.is_null() {
-        return -1;
-    }
+fn rfftblue_forward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
+    let n: usize = plan.n;
+    let tmp_len = 2 * n;// * size_of::<f64>();
+    //let tmp: *mut f64 = (malloc(tmp_len)) as *mut f64;
+    let mut tmp: Vec<f64> = Vec::with_capacity(tmp_len);
     let mut m: usize = 0;
     while m < n {
-        *tmp.offset(2 * (m as isize)) = *c.offset(m as isize);
-        *tmp.offset(2 * (m as isize) + 1) = 0.0;
+        //*tmp.offset(2 * (m as isize)) = *c.offset(m as isize);
+        tmp.insert(2 * m, c[m]);
+        //*tmp.offset(2 * (m as isize) + 1) = 0.0;
+        tmp.insert(2 * m + 1, 0.0);
         m += 1;
     }
 
-    let tmp_ref_mut = from_raw_parts_mut(tmp, tmp_len);
-    let res = fftblue_fft(plan, tmp_ref_mut, -1, fct);
+    //let tmp_ref_mut = from_raw_parts_mut(tmp, tmp_len);
+    let res = fftblue_fft(plan, tmp.as_mut_slice(), -1, fct);
     if res != 0 {
-        free(tmp as *mut c_void);
         return -1;
     }
-    *c.offset(0) = *tmp.offset(0);
-    memcpy(
+    c[0] = tmp[0];
+    c[1..(n - 1)].clone_from_slice(&tmp[2..]);
+    /*memcpy(
         c.offset(1) as *mut c_void,
         tmp.offset(2) as *const c_void,
         (n - 1) * size_of::<f64>(),
-    );
-    free(tmp as *mut c_void);
+    );*/
     return 0;
 }
 
-unsafe fn copy_and_norm(c: *mut f64, p1: *mut f64, n: usize, fct: f64) {
+fn copy_and_norm(c: &mut [f64], p1: &mut [f64], n: usize, fct: f64) {
     if p1 != c {
         if fct != 1.0 {
             let mut i: usize = 0;
             while i < n {
-                *c.offset(i as isize) = *p1.offset(i as isize) * fct;
+                //*c.offset(i as isize) = *p1.offset(i as isize) * fct;
+                c[i] = p1[i] * fct;
                 i += 1;
             }
         } else {
-            memcpy(c as *mut c_void, p1 as *const c_void, n * size_of::<f64>());
+            //memcpy(c as *mut c_void, p1 as *const c_void, n * size_of::<f64>());
+            c.clone_from_slice(&p1[..n]);
         }
     } else if fct != 1.0 {
         let mut i: usize = 0;
         while i < n {
-            *c.offset(i as isize) *= fct;
+            //*c.offset(i as isize) *= fct;
+            c[i] *= fct;
             i += 1;
         }
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn rfft_length(plan: rfft_plan)->usize{
-  if (*plan).packplan.is_null() {
-      let tmp_packplan = (*plan).packplan;
-      return (*tmp_packplan).length;
+pub unsafe extern "C" fn rfft_length(plan: rfft_plan) -> usize {
+    if (*plan).packplan.is_null() {
+        let tmp_packplan = (*plan).packplan;
+        return (*tmp_packplan).length;
     }
     let tmp_blueplan = (*plan).blueplan;
-  return (*tmp_blueplan).n;
-  }
+    return (*tmp_blueplan).n;
+}
