@@ -92,6 +92,7 @@ fn calc_first_octant(den: usize, res: &mut [f64]) {
 fn calc_first_quadrant(n: usize, res: &mut [f64]) {
     //let mut p = &mut res[n..];
     //calc_first_octant(n<<1, &mut p);
+    //assert_eq!(n, res.len());
     calc_first_octant(n << 1, &mut res[n..]);
     let ndone = (n + 2) >> 2;
     let mut i: usize = 0;
@@ -126,7 +127,7 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
     let mut i4 = 0;
     let iN = n;
     let mut i = 0;
-    while i4 <= iN - i4
+    while i4 < iN && i4 <= (iN - i4)
     /* octant 0 */
     {
         //res[2*i] = p[2*i4];
@@ -136,7 +137,7 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
         i += 1;
         i4 += 4;
     }
-    while i4 - iN <= 0
+    while (i4 as isize) - (iN as isize) <= 0
     /* octant 1 */
     {
         let xm = iN - i4;
@@ -2896,7 +2897,7 @@ fn cfftp_twsize(plan: &mut cfftp_plan_i) -> usize {
 
 fn cfftp_comp_twiddle(plan: &mut cfftp_plan_i) -> i32 {
     let length: usize = plan.length;
-    let mut twid: Vec<f64> = Vec::with_capacity(2 * length);
+    let mut twid: Vec<f64> = vec![0.0;2 * length];//Vec::with_capacity(2 * length);
     //if (!twid) {return -1;}
     sincos_2pibyn(length, twid.as_mut_slice());
     let mut l1: usize = 1;
@@ -2988,9 +2989,9 @@ type fftblue_plan = *mut fftblue_plan_i;
 fn make_fftblue_plan(length: usize) -> fftblue_plan {
     //let mut plan: fftblue_plan = malloc((1) * size_of::<fftblue_plan_i>()) as fftblue_plan;
     let tmp_n2 = good_size(length * 2 - 1);
-    let tmp_mem: Vec<f64> = Vec::with_capacity(2 * length + 2 * tmp_n2);
-    let mut tmp_bk: Vec<f64> = Vec::with_capacity(2 * length + 2 * tmp_n2);
-    let mut tmp_bkf: Vec<f64> = Vec::with_capacity(2 * length);
+    let tmp_mem: Vec<f64> = vec![0.0;2 * length + 2 * tmp_n2];//Vec::with_capacity(2 * length + 2 * tmp_n2);
+    let mut tmp_bk: Vec<f64> = vec![0.0;2 * length + 2 * tmp_n2];//Vec::with_capacity(2 * length + 2 * tmp_n2);
+    let mut tmp_bkf: Vec<f64> = vec![0.0;2 * length];//Vec::with_capacity(2 * length);
     //if (!plan) return ((void *)0) ;
     //(*plan).n = length;
     //(*plan).n2 = good_size((*plan).n * 2 - 1);
@@ -3007,7 +3008,7 @@ fn make_fftblue_plan(length: usize) -> fftblue_plan {
     //fixme: (*plan).bk = (*plan).mem.to_vec();
     //fixme: (*plan).bkf = (*plan).bk + 2 * (*plan).n;
     //fixme: let mut tmp: *mut f64 = (malloc((4 * (*plan).n) * size_of::<f64>())) as *mut f64;
-    let mut tmp: Vec<f64> = Vec::with_capacity(4 * length);
+    let mut tmp: Vec<f64> = vec![0.0;4 * length];//Vec::with_capacity(4 * length);
 
     /*if (!tmp) { do { free(plan->mem); (plan->mem)=
     ((void *)0)
@@ -3098,7 +3099,7 @@ type cfft_plan = *mut cfft_plan_i;
 #[no_mangle]
 pub unsafe extern "C" fn make_cfft_plan(length: usize) -> cfft_plan {
     if length == 0 {
-        return null_mut() as cfft_plan;
+        return null_mut();
     //return 0 as *mut c_void as *mut _ as cfft_plan;
     } else {
         //let mut plan: cfft_plan = malloc(size_of::<cfft_plan_i>()) as cfft_plan;
@@ -3137,7 +3138,7 @@ fn fftblue_fft(plan: &mut fftblue_plan_i, c: &mut [f64], isign: i32, fct: f64) -
     let bk = &plan.bk;
     let bkf = &plan.bkf;
     //let akf = ((double *)malloc((2*n2)*sizeof(double)));
-    let mut akf: Vec<f64> = Vec::with_capacity(2 * n2);
+    let mut akf: Vec<f64> = vec![0.0;2 * n2];//Vec::with_capacity(2 * n2);
     //if (!akf) return -1;
 
     if isign > 0 {
@@ -3353,11 +3354,8 @@ fn make_rfftp_plan(len: usize) -> rfftp_plan {
     };
     let mut plan: rfftp_plan = Box::into_raw(Box::new(tmp_rfftp_plan_i));
 
-    unsafe {
-        if plan.is_null() {
-            Box::from_raw(plan);
-            return null_mut();
-        }
+    if plan.is_null() {
+        return null_mut();
     }
     //(*plan).length = len;
     //(*plan).nfct = 0;
@@ -3372,7 +3370,7 @@ fn make_rfftp_plan(len: usize) -> rfftp_plan {
         }
         let tws: usize = rfftp_twsize(&mut *plan);
         //(*plan).mem=(malloc((tws)*size_of::<f64>())) as *mut f64;
-        (*plan).mem = Vec::with_capacity(tws);
+        (*plan).mem = vec![0.0;tws];//Vec::with_capacity(tws);
         if rfftp_comp_twiddle(&mut *plan) != 0 {
             //free(plan as *mut c_void);
             Box::from_raw(plan);
@@ -3449,15 +3447,18 @@ fn rfftp_twsize(plan: &mut rfftp_plan_i) -> usize {
 fn rfftp_comp_twiddle(plan: &mut rfftp_plan_i) -> i32 {
     let length: usize = plan.length;
     //let twid: *mut f64 = (malloc((2*length)*size_of::<f64>())) as (*mut f64);
-    let mut twid: Vec<f64> = Vec::with_capacity(2 * length);
+    let mut twid: Vec<f64> = vec![0.0; 2 * length];//Vec::with_capacity(2 * length);
     sincos_2pibyn_half(length, twid.as_mut_slice());
     let mut l1: usize = 1;
     //fixme:  let mut ptr = (*plan).mem;
     for k in 0..plan.nfct {
         let ip: usize = plan.fct[k].fct;
         let ido = length / (l1 * ip);
+        plan.fct[k].tw = vec![0.0; plan.mem.len()];
+        plan.fct[k].tws = vec![0.0; plan.mem.len()];
         if k < plan.nfct - 1 {
             //fixme:  (*plan).fct[k].tw = ptr;
+            plan.fct[k].tw = vec![0.0; plan.mem.len()];
             //fixme: ptr+=(ip-1)*(ido-1);
             for j in 1..ip {
                 for i in 1..((ido - 1) / 2 + 1) {
@@ -3467,6 +3468,7 @@ fn rfftp_comp_twiddle(plan: &mut rfftp_plan_i) -> i32 {
             }
             if ip > 5 {
                 //fixme:  (*plan).fct[k].tws = ptr;
+                plan.fct[k].tws = vec![0.0; plan.mem.len()];
                 //fixme:  ptr+=2*ip;
                 plan.fct[k].tws[0] = 1.0;
                 plan.fct[k].tws[1] = 0.0;
@@ -3525,11 +3527,12 @@ fn rfftp_backward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
     let mut l1: usize = 1;
     let nf = plan.nfct;
     //let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
-    let mut ch: Vec<f64> = Vec::with_capacity(n);
+    let mut ch: Vec<f64> = vec![0.0;n];//Vec::with_capacity(n);
     /*if ch.is_null() {
         return -1;
     }*/
-    let mut p1: &mut [f64] = c;
+    let mut tmp_c = c.to_vec();
+    let mut p1: &mut [f64] = tmp_c.as_mut_slice();
     let mut p2: &mut [f64] = ch.as_mut_slice();
 
     let mut k: usize = 0;
@@ -3966,7 +3969,7 @@ fn radbg(
             while k < l1 {
                 let mut i: usize = 1;
                 let mut ic: usize = ido - i - 2;
-                while i <= ido - 2 {
+                while ic > 0 && i <= ido - 2 {
                     ch[(i) + ido * ((k) + l1 * (j))] = cc[(i) + ido * ((j2 + 1) + cdim * (k))]
                         + cc[(ic) + ido * ((j2) + cdim * (k))];
                     ch[(i) + ido * ((k) + l1 * (jc))] = cc[(i) + ido * ((j2 + 1) + cdim * (k))]
@@ -4157,11 +4160,7 @@ fn radbg(
 
 fn rfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
     let n: usize = (*plan).n;
-    //let tmp: *mut f64 = (malloc((2 * n) * size_of::<f64>())) as *mut f64;
-    let mut tmp: Vec<f64> = Vec::with_capacity(2 * n);
-    /*if tmp.is_null() {
-        return -1;
-    }*/
+    let mut tmp: Vec<f64> = vec![0.0;2 * n];//Vec::with_capacity(2 * n);
     tmp.insert(0, c[0]);
     tmp.insert(1, 0.0);
     tmp[2..(n - 1)].clone_from_slice(&c[1..]);
@@ -4180,7 +4179,6 @@ fn rfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 
         m += 2;
     }
     if fftblue_fft(&mut *plan, tmp.as_mut_slice(), 1, fct) != 0 {
-        //free(tmp as *mut c_void);
         return -1;
     }
     m = 0;
@@ -4188,7 +4186,6 @@ fn rfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 
         c[m] = tmp[2 * m];
         m += 1;
     }
-    //free(tmp as *mut c_void);
     return 0;
 }
 
@@ -4196,9 +4193,10 @@ fn rfftblue_backward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 
 pub unsafe extern "C" fn rfft_forward(plan: rfft_plan, c: *mut f64, fct: f64) -> i32 {
     if (*plan).packplan.is_null() == false {
         let tmp_packplan = (*plan).packplan;
+        let ref_c = from_raw_parts_mut(c, (*tmp_packplan).length);
         return rfftp_forward(
             &mut *tmp_packplan,
-            from_raw_parts_mut(c, (*tmp_packplan).length),
+            ref_c,
             fct,
         );
     } else {
@@ -4218,12 +4216,10 @@ fn rfftp_forward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
     let n: usize = plan.length;
     let mut l1: usize = n;
     let nf = plan.nfct;
-    //let ch: *mut f64 = (malloc((n) * size_of::<f64>())) as *mut f64;
-    let mut ch: Vec<f64> = Vec::with_capacity(n);
-    /*if ch.is_null() {
-        return -1;
-    }*/
-    let mut p1: &mut [f64] = c;
+    let mut ch: Vec<f64> = vec![0.0;n];//Vec::with_capacity(n);
+    
+    let mut tmp_c = c.to_vec();
+    let mut p1: &mut [f64] = tmp_c.as_mut_slice();
     let mut p2: &mut [f64] = ch.as_mut_slice();
 
     let mut k1: usize = 0;
@@ -4241,14 +4237,19 @@ fn rfftp_forward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
         } else if ip == 5 {
             radf5(ido, l1, p1, p2, plan.fct[k].tw.as_slice());
         } else {
+            //assert_eq!(0, p1.len());
+            //assert_ne!(0, p2.len());
+            //assert_ne!(0, plan.fct[k].tw.len());
+            //assert_ne!(0, plan.fct[k].tws.len());
+            let tmp_fct = &mut plan.fct[k];
             radfg(
                 ido,
                 ip,
                 l1,
                 p1,
                 p2,
-                plan.fct[k].tw.as_slice(),
-                plan.fct[k].tws.as_slice(),
+                &mut tmp_fct.tw,
+                &mut tmp_fct.tws,
             );
             let tmp_ = p1;
             p1 = p2;
@@ -4260,7 +4261,6 @@ fn rfftp_forward(plan: &mut rfftp_plan_i, c: &mut [f64], fct: f64) -> i32 {
         k1 += 1;
     }
     copy_and_norm(c, p1, n, fct);
-    //free(ch as *mut c_void);
     return 0;
 }
 
@@ -4601,8 +4601,8 @@ fn radfg(
     l1: usize,
     cc: &mut [f64],
     ch: &mut [f64],
-    wa: &[f64],
-    csarr: &[f64],
+    wa: &mut Vec<f64>,
+    csarr: &mut Vec<f64>,
 ) {
     let cdim: usize = ip;
     let ipph: usize = (ip + 1) / 2;
@@ -4807,7 +4807,7 @@ fn radfg(
         while k < l1 {
             let mut i: usize = 1;
             let mut ic: usize = ido - i - 2;
-            while i <= ido - 2 {
+            while ic > 0 && i <= ido - 2 {
                 cc[(i) + ido * ((j2 + 1) + cdim * (k))] =
                     ch[(i) + ido * ((k) + l1 * (j))] + ch[(i) + ido * ((k) + l1 * (jc))];
                 cc[(ic) + ido * ((j2) + cdim * (k))] =
@@ -4830,7 +4830,7 @@ fn rfftblue_forward(plan: &mut fftblue_plan_i, c: &mut [f64], fct: f64) -> i32 {
     let n: usize = plan.n;
     let tmp_len = 2 * n;// * size_of::<f64>();
     //let tmp: *mut f64 = (malloc(tmp_len)) as *mut f64;
-    let mut tmp: Vec<f64> = Vec::with_capacity(tmp_len);
+    let mut tmp: Vec<f64> = vec![0.0;tmp_len];//Vec::with_capacity(tmp_len);
     let mut m: usize = 0;
     while m < n {
         //*tmp.offset(2 * (m as isize)) = *c.offset(m as isize);
@@ -4860,7 +4860,6 @@ fn copy_and_norm(c: &mut [f64], p1: &mut [f64], n: usize, fct: f64) {
         if fct != 1.0 {
             let mut i: usize = 0;
             while i < n {
-                //*c.offset(i as isize) = *p1.offset(i as isize) * fct;
                 c[i] = p1[i] * fct;
                 i += 1;
             }
@@ -4871,7 +4870,6 @@ fn copy_and_norm(c: &mut [f64], p1: &mut [f64], n: usize, fct: f64) {
     } else if fct != 1.0 {
         let mut i: usize = 0;
         while i < n {
-            //*c.offset(i as isize) *= fct;
             c[i] *= fct;
             i += 1;
         }
