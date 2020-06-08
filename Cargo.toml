@@ -20,5 +20,5 @@ lto = true # enable link time optimization
 panic = "abort" # disable stack unwinding on panic
 
 [dependencies]
-libc = "0.2"
+#libc = "0.2"
 
