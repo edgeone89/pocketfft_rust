@@ -2,7 +2,8 @@
  * This file is Rust rewrite of pocketfft.c from https://gitlab.mpcdf.mpg.de/mtr/pocketfft
  * Licensed under a 3-clause BSD style license - see LICENSE
  */
-
+ #![allow(non_snake_case)]
+ #![allow(non_camel_case_types)]
 use core::ffi::c_void;
 //use std::mem::forget;
 //use std::mem::size_of;
@@ -14,34 +15,34 @@ use std::slice::from_raw_parts_mut;
 fn my_sincosm1pi(a: f64, res: &mut [f64]) {
     let s = a * a;
     /* Approximate cos(pi*x)-1 for x in [-0.25,0.25] */
-    let r: f64 = -1.0369917389758117e-4;
+    let mut r: f64 = -1.0369917389758117e-4;
     let r1: f64 = r.mul_add(s, 1.9294935641298806e-3);
 
-    let r: f64 = r1.mul_add(s, -2.5806887942825395e-2);
+    r = r1.mul_add(s, -2.5806887942825395e-2);
 
     let r1: f64 = r.mul_add(s, 2.3533063028328211e-1);
 
-    let r: f64 = r1.mul_add(s, -1.3352627688538006e+0);
+    r = r1.mul_add(s, -1.3352627688538006e+0);
 
     let r1: f64 = r.mul_add(s, 4.0587121264167623e+0);
 
-    let r: f64 = r1.mul_add(s, -4.9348022005446790e+0);
+    r = r1.mul_add(s, -4.9348022005446790e+0);
 
     let c = r * s;
 
     /* Approximate sin(pi*x) for x in [-0.25,0.25] */
-    let r: f64 = 4.6151442520157035e-4;
+    r = 4.6151442520157035e-4;
     let r1: f64 = r.mul_add(s, -7.3700183130883555e-3);
 
-    let r: f64 = r1.mul_add(s, 8.2145868949323936e-2);
+    r = r1.mul_add(s, 8.2145868949323936e-2);
 
     let r1: f64 = r.mul_add(s, -5.9926452893214921e-1);
 
-    let r: f64 = r1.mul_add(s, 2.5501640398732688e+0);
+    r = r1.mul_add(s, 2.5501640398732688e+0);
 
     let r1: f64 = r.mul_add(s, -5.1677127800499516e+0);
 
-    let r: f64 = r1 * s * a;
+    r = r1 * s * a;
     let s1 = a.mul_add(3.1415926535897931e+0, r);
     res[0] = c;
     res[1] = s1;
@@ -122,9 +123,8 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
     let mut i4 = 0;
     let iN = n;
     let mut i = 0;
-    while i4 < iN && i4 <= (iN - i4)
-    /* octant 0 */
-    {
+    while i4 < iN && i4 <= (iN - i4) {
+        /* octant 0 */
         //res[2*i] = p[2*i4];
         res[2 * i] = res[n - 1 + 2 * i4];
         //res[2*i+1] = p[2*i4+1];
@@ -132,9 +132,8 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
         i += 1;
         i4 += 4;
     }
-    while (i4 as isize) - (iN as isize) <= 0
-    /* octant 1 */
-    {
+    while (i4 as isize) - (iN as isize) <= 0 {
+        /* octant 1 */
         let xm = iN - i4;
         //res[2*i] = p[2*xm+1];
         res[2 * i] = res[n - 1 + 2 * xm + 1];
@@ -143,9 +142,8 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
         i += 1;
         i4 += 4;
     }
-    while i4 <= 3 * iN - i4
-    /* octant 2*/
-    {
+    while i4 <= 3 * iN - i4 {
+        /* octant 2*/
         let xm = i4 - iN;
         //res[2*i] = -p[2*xm+1];
         res[2 * i] = -1.0 * res[n - 1 + 2 * xm + 1];
@@ -154,9 +152,8 @@ fn calc_first_half(n: usize, res: &mut [f64]) {
         i += 1;
         i4 += 4;
     }
-    while i < ndone
-    /* octant 3 */
-    {
+    while i < ndone {
+        /* octant 3 */
         let xm = 2 * iN - i4;
         //res[2*i] = -p[2*xm];
         res[2 * i] = -1.0 * res[n - 1 + 2 * xm];
@@ -357,7 +354,7 @@ struct cfftp_fctdata {
 }
 
 #[repr(C)]
-struct cfftp_plan_i {
+pub struct cfftp_plan_i {
     length: usize,
     nfct: usize,
     mem: Vec<f64>,
